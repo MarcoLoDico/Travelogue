@@ -10,5 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 0) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_20_221726) do
+  create_table "places", force: :cascade do |t|
+    t.string "name"
+    t.integer "kind"
+    t.string "country_code"
+    t.string "admin1_code"
+    t.integer "external_id", limit: 8
+    t.float "lat"
+    t.float "lon"
+    t.integer "population", limit: 8
+    t.integer "parent_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["parent_id"], name: "index_places_on_parent_id"
+  end
+
+  add_foreign_key "places", "places", column: "parent_id"
 end
