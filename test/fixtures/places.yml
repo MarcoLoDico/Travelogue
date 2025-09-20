@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: Toronto
+  kind: 1
+  country_code: CA
+  admin1_code: ON
+  external_id: 1
+  lat: 1.5
+  lon: 1.5
+  population: 1
+  parent: one
+
+two:
+  name: Montreal  
+  kind: 1
+  country_code: CA
+  admin1_code: QC
+  external_id: 1
+  lat: 1.5
+  lon: 1.5
+  population: 1
+  parent: two
