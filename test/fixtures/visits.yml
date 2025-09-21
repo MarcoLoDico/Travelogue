@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  place: one
+  visited_on: 2025-09-20
+  arrived_at: 2025-09-20 18:25:07
+  departed_at: 2025-09-20 18:25:07
+  notes: MyText
+  lat: 1.5
+  lon: 1.5
+  source: MyString
+
+two:
+  user: two
+  place: two
+  visited_on: 2025-09-20
+  arrived_at: 2025-09-20 18:25:07
+  departed_at: 2025-09-20 18:25:07
+  notes: MyText
+  lat: 1.5
+  lon: 1.5
+  source: MyString
