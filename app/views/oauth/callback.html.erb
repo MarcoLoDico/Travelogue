@@ -1,0 +1,47 @@
+<% content_for :title, "OAuth Callback - Travelogue" %>
+
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4 py-8">
+  <div class="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6 sm:p-8">
+    <div class="text-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-900 mb-2">OAuth Callback</h1>
+      <p class="text-gray-600">OAuth 2.0 / OpenID Connect flow completed</p>
+    </div>
+
+    <div class="space-y-4">
+      <div class="bg-gray-50 rounded-lg p-4">
+        <h3 class="font-medium text-gray-900 mb-2">Authorization Code:</h3>
+        <code class="text-sm bg-white p-2 rounded border block break-all"><%= params[:code] %></code>
+      </div>
+
+      <% if params[:state] %>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <h3 class="font-medium text-gray-900 mb-2">State:</h3>
+          <code class="text-sm bg-white p-2 rounded border block"><%= params[:state] %></code>
+        </div>
+      <% end %>
+
+      <div class="bg-blue-50 rounded-lg p-4">
+        <h3 class="font-medium text-blue-900 mb-2">Next Steps:</h3>
+        <p class="text-sm text-blue-800 mb-3">
+          Use this authorization code to exchange for access tokens via the token endpoint:
+        </p>
+        <div class="bg-white p-3 rounded border text-xs font-mono">
+          POST /oauth/token<br>
+          Content-Type: application/x-www-form-urlencoded<br><br>
+          grant_type=authorization_code<br>
+          code=<%= params[:code] %><br>
+          client_id=e9be306d74e65ac3046ae88fb21a9b0d<br>
+          client_secret=2002ef8cbc770d76c579d4f864c5038d3e680ac4954f77c8fd44ba16255a73c2<br>
+          redirect_uri=http://localhost:3001/callback
+        </div>
+      </div>
+
+      <div class="flex space-x-4">
+        <%= link_to "Back to Home", root_path, 
+            class: "flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded text-center" %>
+        <%= link_to "Test Token Exchange", "#", 
+            class: "flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded text-center" %>
+      </div>
+    </div>
+  </div>
+</div>

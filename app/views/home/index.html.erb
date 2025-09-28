@@ -1,22 +1,23 @@
 <% content_for :title, "Travelogue - Your Travel Journey" %>
 
-<div class="container mx-auto px-4 py-8">
+<div class="container mx-auto px-4 py-4 sm:py-8">
   <% if authenticated? %>
     <!-- Authenticated User View -->
     <div class="max-w-6xl mx-auto">
-      <div class="flex justify-between items-center mb-8">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 space-y-4 sm:space-y-0">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">My Travels</h1>
+          <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">My Travels</h1>
           <p class="text-gray-600 mt-2">Places I've visited</p>
         </div>
-        <div class="space-x-4">
-          <%= link_to "Add Place", "#", class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded" %>
-          <%= link_to "Sign Out", session_path, data: { turbo_method: :delete }, class: "bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded" %>
+        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+          <%= link_to "Add Place", "#", class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-center" %>
+          <%= link_to "Sign Out", session_path, data: { turbo_method: :delete }, class: "bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-center" %>
         </div>
       </div>
 
       <% if @user_places.any? %>
-        <div class="bg-white shadow rounded-lg overflow-hidden">
+        <!-- Desktop Table View -->
+        <div class="hidden sm:block bg-white shadow rounded-lg overflow-hidden">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
@@ -50,6 +51,26 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Mobile Card View -->
+        <div class="sm:hidden space-y-4">
+          <% @user_places.each do |visit| %>
+            <div class="bg-white shadow rounded-lg p-4">
+              <div class="flex justify-between items-start mb-2">
+                <h3 class="text-lg font-medium text-gray-900"><%= visit.place.name %></h3>
+                <span class="text-xs text-gray-500"><%= visit.place.country_code %></span>
+              </div>
+              <p class="text-sm text-gray-600 mb-2">
+                <%= visit.visited_on&.strftime("%B %d, %Y") || visit.created_at.strftime("%B %d, %Y") %>
+              </p>
+              <% if visit.notes.present? %>
+                <p class="text-sm text-gray-500">
+                  <%= truncate(visit.notes, length: 120) %>
+                </p>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
       <% else %>
         <!-- Empty State -->
         <div class="text-center py-12">
@@ -69,23 +90,36 @@
     </div>
   <% else %>
     <!-- Unauthenticated User View -->
-    <div class="max-w-2xl mx-auto text-center">
-      <div class="mb-8">
-        <h1 class="text-4xl font-bold text-gray-900 mb-4">Travelogue</h1>
-        <p class="text-xl text-gray-600 mb-8">
+    <div class="max-w-2xl mx-auto text-center px-4">
+      <%= tag.div(flash[:notice], class: "bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6 max-w-md mx-auto") if flash[:notice] %>
+      
+      <div class="mb-6 sm:mb-8">
+        <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Travelogue</h1>
+        <p class="text-lg sm:text-xl text-gray-600 mb-6 sm:mb-8">
           Document your travel journey and share your adventures
         </p>
       </div>
 
-      <div class="bg-white rounded-lg shadow p-8 mb-8">
-        <h2 class="text-2xl font-semibold text-gray-800 mb-6">Get Started</h2>
-        <div class="space-y-4">
-          <%= link_to "Sign In", new_session_path, class: "block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded" %>
-          <%= link_to "Create Account", new_user_path, class: "block w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded" %>
+      <div class="bg-white rounded-lg shadow p-6 sm:p-8 mb-6 sm:mb-8">
+        <h2 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 sm:mb-6">Sign In</h2>
+        <div class="space-y-3 sm:space-y-4">
+          <%= link_to "Sign In", new_user_path, class: "block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded" %>
         </div>
       </div>
 
-      <div class="grid md:grid-cols-3 gap-6 text-center">
+      <div class="bg-white rounded-lg shadow p-6 sm:p-8 mb-6 sm:mb-8">
+        <h2 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 sm:mb-6">OAuth Test</h2>
+        <p class="text-gray-600 mb-4">Test the OAuth 2.0 / OpenID Connect flow:</p>
+        <div class="space-y-3 sm:space-y-4">
+          <%= link_to "OAuth Authorization", "/oauth/authorize?client_id=e9be306d74e65ac3046ae88fb21a9b0d&redirect_uri=http://localhost:3001/callback&response_type=code&scope=openid profile email&state=test123", 
+              class: "block w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded" %>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">
+          This will start the OAuth flow with authorization codes and access tokens
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 text-center">
         <div class="p-4">
           <h3 class="font-semibold text-gray-800 mb-2">Track Places</h3>
           <p class="text-gray-600 text-sm">Keep a record of all the amazing places you've visited</p>
@@ -103,4 +137,5 @@
       </div>
     </div>
   <% end %>
+</div>
 </div>

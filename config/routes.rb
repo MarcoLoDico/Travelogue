@@ -1,7 +1,17 @@
 Rails.application.routes.draw do
   resource :session
   resources :passwords, param: :token
-  resources :users, only: [:new, :create]
+  resources :users, only: [ :new, :create ]
+  resources :one_time_codes, only: [ :new, :create ]
+  get "resend_code", to: "one_time_codes#resend", as: :resend_one_time_code
+
+  # OAuth 2.0 / OpenID Connect endpoints
+  get "oauth/authorize", to: "oauth#authorize"
+  post "oauth/authorize", to: "oauth#consent"
+  post "oauth/token", to: "oauth#token"
+  get "oauth/userinfo", to: "oauth#userinfo"
+  get "oauth/jwks", to: "oauth#jwks"
+  get "oauth/callback", to: "oauth#callback"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
