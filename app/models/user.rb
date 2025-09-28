@@ -1,7 +1,10 @@
 class User < ApplicationRecord
   has_secure_password
   has_many :sessions, dependent: :destroy
+  has_many :visits, dependent: :destroy
+  has_many :places, through: :visits
 
+  validates :email_address, presence: true, uniqueness: { case_sensitive: false }
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
   generates_token_for :password_reset, expires_in: 15.minutes do
