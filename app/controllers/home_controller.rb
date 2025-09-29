@@ -9,7 +9,17 @@ class HomeController < ApplicationController
 
   # Initiate OAuth authorization with PKCE
   def start_oauth
-    application = OauthApplication.find_by!(name: "Travelogue Web App")
+    # Use a configured first‑party OAuth application; do not create users here.
+    application = if ENV["OAUTH_CLIENT_UID"].present?
+      OauthApplication.find_by_uid(ENV["OAUTH_CLIENT_UID"])
+    else
+      OauthApplication.find_by(name: "Travelogue Web App")
+    end
+
+    unless application
+      redirect_to root_path, alert: "OAuth client not configured. Please run seeds or create an application with redirect_uri #{oauth_callback_url}."
+      return
+    end
 
     state = SecureRandom.hex(16)
     nonce = SecureRandom.hex(16)

@@ -25,6 +25,6 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     # Should be on landing page
     assert_select "h1", "Travelogue"
     assert_select "p", text: /Document your travel journey/
-    assert_select "a[href='#{start_oauth_path}']", "Sign In"
+    assert_select "a[href='#{new_user_path}']", "Sign In with Email"
   end
 end

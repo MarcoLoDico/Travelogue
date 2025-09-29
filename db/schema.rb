@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_29_010755) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_29_030000) do
   create_table "access_tokens", force: :cascade do |t|
     t.string "token"
     t.string "refresh_token"
@@ -22,6 +22,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_29_010755) do
     t.datetime "updated_at", null: false
     t.index ["application_id"], name: "index_access_tokens_on_application_id"
     t.index ["user_id"], name: "index_access_tokens_on_user_id"
+  end
+
+  create_table "authorization_codes", force: :cascade do |t|
+    t.string "code", null: false
+    t.integer "user_id", null: false
+    t.integer "application_id", null: false
+    t.string "redirect_uri", null: false
+    t.string "scope"
+    t.string "nonce"
+    t.string "code_challenge"
+    t.string "code_challenge_method"
+    t.datetime "expires_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["application_id"], name: "index_authorization_codes_on_application_id"
+    t.index ["code"], name: "index_authorization_codes_on_code", unique: true
+    t.index ["user_id"], name: "index_authorization_codes_on_user_id"
   end
 
   create_table "oauth_applications", force: :cascade do |t|
@@ -95,6 +112,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_29_010755) do
 
   add_foreign_key "access_tokens", "oauth_applications", column: "application_id"
   add_foreign_key "access_tokens", "users"
+  add_foreign_key "authorization_codes", "oauth_applications", column: "application_id"
+  add_foreign_key "authorization_codes", "users"
   add_foreign_key "oauth_applications", "users"
   add_foreign_key "one_time_codes", "users"
   add_foreign_key "places", "places", column: "parent_id"
