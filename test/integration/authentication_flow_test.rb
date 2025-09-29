@@ -218,7 +218,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     # Should show sign in page
     assert_response :success
     assert_select "h1", "Travelogue"
-    assert_select "a[href='#{new_user_path}']", "Sign In with Email"
+    assert_select "a[href='#{new_user_path}']", "Sign In"
   end
 
   test "home page accessible without authentication" do

@@ -32,30 +32,7 @@ module ActiveSupport
       end
     end
 
-    # OAuth helpers
-    def create_oauth_application(user = nil)
-      user ||= users(:alice)
-      user.oauth_applications.create!(
-        name: "Test Application",
-        redirect_uri: "http://localhost:3001/callback"
-      )
-    end
-
-    def generate_authorization_code(user, application, params = {})
-      code = SecureRandom.hex(32)
-      session[:auth_codes] ||= {}
-      session[:auth_codes][code] = {
-        user_id: user.id,
-        client_id: application.uid,
-        redirect_uri: params[:redirect_uri] || application.redirect_uri,
-        scope: params[:scope] || "openid profile email",
-        nonce: params[:nonce],
-        code_challenge: params[:code_challenge],
-        code_challenge_method: params[:code_challenge_method],
-        expires_at: 10.minutes.from_now
-      }
-      code
-    end
+    # OAuth removed: helpers deleted
 
     # Email helpers
     def last_email
@@ -69,8 +46,7 @@ module ActiveSupport
     # Database helpers
     def clean_database
       # Clean up test data in reverse dependency order
-      AccessToken.destroy_all
-      OauthApplication.destroy_all
+      # OAuth removed: no access tokens or applications
       OneTimeCode.destroy_all
       Session.destroy_all
       Visit.destroy_all
@@ -89,10 +65,7 @@ module ActionDispatch
       end
     end
 
-    def assert_redirected_to_oauth_authorize
-      assert_response :redirect
-      assert_match %r{/oauth/authorize}, response.redirect_url
-    end
+    # OAuth removed: no OAuth redirects
 
     def assert_redirected_to_sign_in
       assert_response :redirect
