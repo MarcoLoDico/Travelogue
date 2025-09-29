@@ -1,0 +1,14 @@
+# Realistic session fixtures for testing
+alice_session:
+  user: alice
+  user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36
+  ip_address: 192.168.1.100
+  created_at: <%= 1.hour.ago %>
+  updated_at: <%= 1.hour.ago %>
+
+bob_session:
+  user: bob
+  user_agent: Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15
+  ip_address: 10.0.0.50
+  created_at: <%= 30.minutes.ago %>
+  updated_at: <%= 30.minutes.ago %>

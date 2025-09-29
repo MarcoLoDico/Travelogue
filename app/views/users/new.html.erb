@@ -1,0 +1,33 @@
+<% content_for :title, "Sign In - Travelogue" %>
+
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4 py-8">
+  <div class="w-full max-w-md bg-white rounded-lg shadow-lg p-6 sm:p-8">
+    <div class="text-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-900 mb-2">Sign In</h1>
+      <p class="text-gray-600">Enter your email to receive a login code</p>
+    </div>
+
+    <%= tag.div(flash[:notice], class: "bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4") if flash[:notice] %>
+    <%= tag.div(flash[:alert], class: "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4") if flash[:alert] %>
+
+    <%= form_with model: User.new, url: users_path, local: true, class: "space-y-4" do |form| %>
+      <div>
+        <%= form.label :email_address, "Email address" %>
+        <%= form.email_field :email_address, 
+            required: true, 
+            autofocus: true, 
+            autocomplete: "email", 
+            placeholder: "Enter your email address", 
+            class: "w-full px-4 py-3 border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 #{flash[:alert] ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'}" %>
+      </div>
+
+      <%= form.submit "Send Login Code", 
+          class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200" %>
+    <% end %>
+
+    <div class="mt-6 text-center">
+      <%= link_to "Back to Home", root_path, 
+          class: "text-blue-600 hover:text-blue-700 text-sm" %>
+    </div>
+  </div>
+</div>

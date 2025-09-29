@@ -1,0 +1,21 @@
+# Realistic user fixtures for testing
+alice:
+  email_address: alice@example.com
+  created_at: <%= 1.week.ago %>
+  updated_at: <%= 1.week.ago %>
+
+bob:
+  email_address: bob@example.com
+  created_at: <%= 3.days.ago %>
+  updated_at: <%= 3.days.ago %>
+
+charlie:
+  email_address: charlie@example.com
+  created_at: <%= 1.day.ago %>
+  updated_at: <%= 1.day.ago %>
+
+# Test user for OAuth flows
+oauth_user:
+  email_address: oauth@example.com
+  created_at: <%= 2.weeks.ago %>
+  updated_at: <%= 2.weeks.ago %>

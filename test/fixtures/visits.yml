@@ -1,23 +1,39 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# Realistic visit fixtures for testing
+alice_toronto:
+  user: alice
+  place: toronto
+  visited_on: <%= 1.month.ago.to_date %>
+  arrived_at: <%= 1.month.ago.beginning_of_day + 14.hours %>
+  departed_at: <%= 1.month.ago.beginning_of_day + 18.hours %>
+  notes: "Amazing city! Loved the CN Tower and waterfront."
+  lat: 43.6532
+  lon: -79.3832
+  source: manual
+  created_at: <%= 1.month.ago %>
+  updated_at: <%= 1.month.ago %>
 
-one:
-  user: one
-  place: one
-  visited_on: 2025-09-20
-  arrived_at: 2025-09-20 18:25:07
-  departed_at: 2025-09-20 18:25:07
-  notes: MyText
-  lat: 1.5
-  lon: 1.5
-  source: MyString
+alice_paris:
+  user: alice
+  place: paris
+  visited_on: <%= 2.weeks.ago.to_date %>
+  arrived_at: <%= 2.weeks.ago.beginning_of_day + 10.hours %>
+  departed_at: <%= 2.weeks.ago.beginning_of_day + 16.hours %>
+  notes: "Beautiful city with amazing architecture and food."
+  lat: 48.8566
+  lon: 2.3522
+  source: manual
+  created_at: <%= 2.weeks.ago %>
+  updated_at: <%= 2.weeks.ago %>
 
-two:
-  user: two
-  place: two
-  visited_on: 2025-09-20
-  arrived_at: 2025-09-20 18:25:07
-  departed_at: 2025-09-20 18:25:07
-  notes: MyText
-  lat: 1.5
-  lon: 1.5
-  source: MyString
+bob_tokyo:
+  user: bob
+  place: tokyo
+  visited_on: <%= 1.week.ago.to_date %>
+  arrived_at: <%= 1.week.ago.beginning_of_day + 9.hours %>
+  departed_at: <%= 1.week.ago.beginning_of_day + 17.hours %>
+  notes: "Incredible experience! The food and culture were amazing."
+  lat: 35.6762
+  lon: 139.6503
+  source: manual
+  created_at: <%= 1.week.ago %>
+  updated_at: <%= 1.week.ago %>

@@ -1,0 +1,24 @@
+# Realistic one-time code fixtures for testing
+alice_valid_code:
+  user: alice
+  code: 123456
+  expires_at: <%= 15.minutes.from_now %>
+  used: false
+  created_at: <%= 5.minutes.ago %>
+  updated_at: <%= 5.minutes.ago %>
+
+bob_expired_code:
+  user: bob
+  code: 789012
+  expires_at: <%= 1.hour.ago %>
+  used: false
+  created_at: <%= 2.hours.ago %>
+  updated_at: <%= 2.hours.ago %>
+
+charlie_used_code:
+  user: charlie
+  code: 345678
+  expires_at: <%= 15.minutes.from_now %>
+  used: true
+  created_at: <%= 10.minutes.ago %>
+  updated_at: <%= 5.minutes.ago %>

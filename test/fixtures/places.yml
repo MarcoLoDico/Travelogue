@@ -1,23 +1,33 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
+# Realistic place fixtures for testing
+toronto:
   name: Toronto
   kind: 1
   country_code: CA
   admin1_code: ON
-  external_id: 1
-  lat: 1.5
-  lon: 1.5
-  population: 1
-  parent: one
+  lat: 43.6532
+  lon: -79.3832
+  population: 2930000
+  created_at: <%= 1.week.ago %>
+  updated_at: <%= 1.week.ago %>
 
-two:
-  name: Montreal  
+paris:
+  name: Paris
   kind: 1
-  country_code: CA
-  admin1_code: QC
-  external_id: 1
-  lat: 1.5
-  lon: 1.5
-  population: 1
-  parent: two
+  country_code: FR
+  admin1_code: 11
+  lat: 48.8566
+  lon: 2.3522
+  population: 2161000
+  created_at: <%= 1.week.ago %>
+  updated_at: <%= 1.week.ago %>
+
+tokyo:
+  name: Tokyo
+  kind: 1
+  country_code: JP
+  admin1_code: 13
+  lat: 35.6762
+  lon: 139.6503
+  population: 13960000
+  created_at: <%= 1.week.ago %>
+  updated_at: <%= 1.week.ago %>
