@@ -5,7 +5,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get root_path
     assert_response :success
     assert_select "h1", "Travelogue"
-    assert_select "a[href='#{start_oauth_path}']", "Sign In"
+    assert_select "a[href='#{new_user_path}']", "Sign In with Email"
     assert_select "h1", { text: "My Travels", count: 0 }
   end
 
@@ -44,8 +44,8 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get root_path
     assert_response :success
 
-    assert_select "h3", "No places visited yet"
-    assert_select "p", text: /Start your travel journey by adding your first place!/
+    # Map container should be present for adding first visit
+    assert_select "[data-controller='map']"
     assert_select "table", { count: 0 }
   end
 
@@ -55,7 +55,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "h2", "Sign In"
     assert_select "p", text: /Authenticate to access your account/
-    assert_select "a[href='#{start_oauth_path}']", text: "Sign In"
+    assert_select "a[href='#{new_user_path}']", text: "Sign In with Email"
   end
 
   test "should not show OAuth test section for authenticated users" do

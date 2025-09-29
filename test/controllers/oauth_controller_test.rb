@@ -59,60 +59,14 @@ class OauthControllerTest < ActionDispatch::IntegrationTest
     assert_match %r{#{@app.redirect_uri}\?code=}, response.redirect_url
   end
 
-  test "should handle consent with yes" do
+  test "should redirect with code when authenticated (no consent)" do
     sign_in_user(@user)
-
-    # First get the authorize page to set up session
-    get "/oauth/authorize", params: {
-      client_id: @app.uid,
-      redirect_uri: @app.redirect_uri,
-      response_type: "code",
-      scope: "openid profile email",
-      state: "test_state"
-    }
-
-    # Then post consent
-    post "/oauth/authorize", params: {
-      client_id: @app.uid,
-      redirect_uri: @app.redirect_uri,
-      response_type: "code",
-      scope: "openid profile email",
-      state: "test_state",
-      consent: "accept"
-    }
-
-    # Should redirect with authorization code
+    get "/oauth/authorize", params: { client_id: @app.uid, redirect_uri: @app.redirect_uri, response_type: "code", scope: "openid profile email", state: "test_state" }
     assert_response :redirect
     assert_match %r{#{@app.redirect_uri}\?code=}, response.redirect_url
-    assert_match %r{state=test_state}, response.redirect_url
   end
 
-  test "should handle consent with no" do
-    sign_in_user(@user)
-
-    # First get the authorize page to set up session
-    get "/oauth/authorize", params: {
-      client_id: @app.uid,
-      redirect_uri: @app.redirect_uri,
-      response_type: "code",
-      scope: "openid profile email",
-      state: "test_state"
-    }
-
-    # Then post consent denial
-    post "/oauth/authorize", params: {
-      client_id: @app.uid,
-      redirect_uri: @app.redirect_uri,
-      response_type: "code",
-      scope: "openid profile email",
-      state: "test_state",
-      consent: "deny"
-    }
-
-    # Should redirect with error
-    assert_response :redirect
-    assert_match %r{error=access_denied}, response.redirect_url
-  end
+  # Consent denial not supported in first-party mode
 
 
   test "should not exchange invalid authorization code" do

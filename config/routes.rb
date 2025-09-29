@@ -13,6 +13,14 @@ Rails.application.routes.draw do
   get "oauth/callback", to: "oauth#callback"
   # Support clients configured with "/callback" as redirect_uri
   get "callback", to: "oauth#callback"
+
+  # Visits API for map
+  resources :visits, only: [ :index, :create, :destroy, :update ] do
+    collection do
+      get :export
+      get :list
+    end
+  end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

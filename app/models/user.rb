@@ -13,8 +13,6 @@ class User < ApplicationRecord
     find_by(email_address: email.strip.downcase)
   end
 
-  # Password authentication removed; email-based OTP only
-
   # OIDC Claims
   def oidc_claims
     {

@@ -46,6 +46,9 @@ gem "tailwindcss-rails"
 # Load environment variables from .env file
 gem "dotenv-rails"
 
+# CSV support (Ruby 3.4+ no longer includes csv by default)
+gem "csv"
+
 # CORS handling
 gem "rack-cors"
 

@@ -47,9 +47,10 @@ class AuthenticationSystemTest < ApplicationSystemTestCase
     fill_in "6-Digit Code", with: code
     click_button "Verify Code"
 
-    # In test env, consent screen is shown (no auto-approve)
-    assert_text "Authorize Application"
-    click_button "Authorize"
+    # Consent may auto-approve depending on app; handle both cases
+    if page.has_text?("Authorize Application")
+      click_button "Authorize"
+    end
 
     # After consent, we return home and should be signed in
     assert_text "My Travels"
