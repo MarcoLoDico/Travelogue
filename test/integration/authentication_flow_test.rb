@@ -29,6 +29,9 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_select "h1", "Enter Login Code"
     assert_select "input[name='code']"
 
+    # Process enqueued emails
+    perform_enqueued_jobs
+
     # Should have sent email
     email = last_email
     assert_not_nil email
@@ -80,6 +83,9 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", "Enter Login Code"
 
+    # Process enqueued emails
+    perform_enqueued_jobs
+
     # Should have sent email
     email = last_email
     assert_not_nil email
@@ -112,7 +118,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     # Should render form with errors
     assert_response :unprocessable_entity
     assert_select ".bg-red-100" # Error message box
-    assert_select "input[name='user[email_address]'][style*='border-color: #ef4444']" # Red border
+    assert_select "input[name='user[email_address]'].border-red-500" # Red border
   end
 
   test "invalid or expired code" do
@@ -184,6 +190,9 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".bg-green-100" # Success message box
 
+    # Process enqueued emails
+    perform_enqueued_jobs
+
     # Should have sent new email
     email = last_email
     assert_not_nil email
@@ -209,7 +218,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     # Should show sign in page
     assert_response :success
     assert_select "h1", "Travelogue"
-    assert_select "a[href='#{new_user_path}']", "Sign In"
+    assert_select "a[href='#{start_oauth_path}']", "Sign In"
   end
 
   test "home page accessible without authentication" do

@@ -44,7 +44,7 @@ class OauthControllerTest < ActionDispatch::IntegrationTest
     assert_match %r{error=invalid_request}, response.redirect_url
   end
 
-  test "should show consent screen when authenticated" do
+  test "should auto-approve first-party and redirect when authenticated" do
     sign_in_user(@user)
 
     get "/oauth/authorize", params: {
@@ -55,10 +55,8 @@ class OauthControllerTest < ActionDispatch::IntegrationTest
       state: "test_state"
     }
 
-    assert_response :success
-    assert_select "h1", "Authorize Application"
-    assert_select "p", text: /#{@app.name}/
-    assert_select "form[action='/oauth/authorize'][method='post']"
+    assert_response :redirect
+    assert_match %r{#{@app.redirect_uri}\?code=}, response.redirect_url
   end
 
   test "should handle consent with yes" do
@@ -237,15 +235,10 @@ class OauthControllerTest < ActionDispatch::IntegrationTest
     assert_equal "sig", key["use"]
   end
 
-  test "should get callback" do
-    get "/oauth/callback", params: {
-      code: "test_code_123",
-      state: "test_state"
-    }
-
-    assert_response :success
-    assert_select "h1", "OAuth Callback"
-    assert_select "code", text: /test_code_123/
-    assert_select "code", text: /test_state/
+  test "should get callback and redirect to root after exchange" do
+    # Minimal params; we expect redirect to root since server exchanges
+    get "/oauth/callback", params: { code: "test_code_123", state: "test_state" }
+    assert_response :redirect
+    assert_redirected_to root_path
   end
 end

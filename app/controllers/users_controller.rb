@@ -1,37 +1,40 @@
 class UsersController < ApplicationController
-  allow_unauthenticated_access only: %i[ new create ]
+  allow_unauthenticated_access
 
   def new
-    @user = User.new
+    @email = params[:email]
   end
 
   def create
-    @user = User.find_or_initialize_by(email_address: user_params[:email_address])
+    @email = params[:user].present? ? params[:user][:email_address] : params[:email_address]
+    @email = @email.strip.downcase if @email.present?
 
-    if @user.persisted?
-      # User exists, send login code
-      one_time_code = OneTimeCode.generate_for(@user)
-      OneTimeCodeMailer.send_code(@user, one_time_code.code).deliver_now
-      redirect_to new_one_time_code_path(email: @user.email_address, code: one_time_code.code),
-                  notice: "We've sent a login code to your email address."
-    else
-      # New user, create account and send code
-      @user.password = SecureRandom.hex(16) # Set a random password for passwordless flow
-      if @user.save
-        one_time_code = OneTimeCode.generate_for(@user)
-        OneTimeCodeMailer.send_code(@user, one_time_code.code).deliver_now
-        redirect_to new_one_time_code_path(email: @user.email_address, code: one_time_code.code),
-                    notice: "Welcome to Travelogue! We've sent a login code to your email address."
-      else
-        flash.now[:alert] = "There was a problem with your email address."
+    unless @email.present? && @email.match?(URI::MailTo::EMAIL_REGEXP)
+      flash.now[:alert] = "Invalid email address."
+      render :new, status: :unprocessable_entity
+      return
+    end
+
+    # Find or create user
+    user = User.find_or_initialize_by(email_address: @email)
+
+    unless user.persisted?
+      begin
+        user.save!
+      rescue ActiveRecord::RecordInvalid => e
+        flash.now[:alert] = "Error: #{e.message}"
         render :new, status: :unprocessable_entity
+        return
       end
     end
+
+    # Generate one-time code
+    one_time_code = OneTimeCode.generate_for(user)
+
+    # Send code via email
+    OneTimeCodeMailer.send_code(user, one_time_code.code).deliver_later
+
+    # Redirect to code entry with code in development/test
+    redirect_to new_one_time_code_path(email: @email, code: (Rails.env.development? || Rails.env.test?) ? one_time_code.code : nil)
   end
-
-  private
-
-    def user_params
-      params.require(:user).permit(:email_address)
-    end
 end

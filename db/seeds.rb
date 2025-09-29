@@ -4,8 +4,7 @@
 
 # Create a test user
 user = User.find_or_create_by!(email_address: ENV["TEST_USER_EMAIL"]) do |u|
-  u.password = "test"
-  u.password_confirmation = "test"
+  # Passwordless auth; nothing else to set here
 end
 
 # Create Toronto place

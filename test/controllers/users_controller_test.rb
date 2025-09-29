@@ -28,6 +28,9 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", "Enter Login Code"
 
+    # Process enqueued emails
+    perform_enqueued_jobs
+
     # Should have sent email
     email = last_email
     assert_not_nil email, "Expected an email to be sent, but found: #{ActionMailer::Base.deliveries.inspect}"
@@ -56,6 +59,9 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", "Enter Login Code"
+
+    # Process enqueued emails
+    perform_enqueued_jobs
 
     # Should have sent email
     email = last_email

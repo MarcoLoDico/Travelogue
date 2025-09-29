@@ -36,6 +36,7 @@ class OneTimeCodesController < ApplicationController
       # Check if this is an OAuth flow
       if session[:oauth_params]
         oauth_params = session[:oauth_params]
+        Rails.logger.info "OAUTH_FLOW: Redirecting back to OAuth with params: #{oauth_params.inspect}"
         session.delete(:oauth_params)
         redirect_to "/oauth/authorize?#{oauth_params.to_query}"
       else

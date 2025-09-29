@@ -1,5 +1,12 @@
+require "net/http"
+require "uri"
+require "json"
+
 class OauthController < ApplicationController
   allow_unauthenticated_access only: [ :authorize, :token, :userinfo, :jwks, :callback ]
+
+  # OAuth token endpoint should skip CSRF protection
+  skip_before_action :verify_authenticity_token, only: :token
 
   # OAuth 2.0 Authorization Endpoint
   def authorize
@@ -27,29 +34,89 @@ class OauthController < ApplicationController
 
     # Check if user is authenticated
     unless authenticated?
-      # Store OAuth parameters in session for after authentication
-      session[:oauth_params] = {
-        client_id: @client_id,
-        redirect_uri: @redirect_uri,
-        response_type: @response_type,
-        scope: @scope,
-        state: @state,
-        nonce: @nonce,
-        code_challenge: @code_challenge,
-        code_challenge_method: @code_challenge_method
-      }
+    # Store OAuth parameters in session for after authentication
+    session[:oauth_params] = {
+      client_id: @client_id,
+      redirect_uri: @redirect_uri,
+      response_type: @response_type,
+      scope: @scope,
+      state: @state,
+      nonce: @nonce,
+      code_challenge: @code_challenge,
+      code_challenge_method: @code_challenge_method,
+      created_at: Time.current.to_i  # Security: timestamp for validation
+    }
       redirect_to new_user_path
       return
     end
 
-    # User is authenticated, show consent screen
-    render :authorize
+    # User is authenticated - auto-approve for first-party apps
+    # For third-party apps, you'd show consent screen here
+    if first_party_app?(@application, Current.user)
+      # Auto-approve: generate authorization code directly
+      code = generate_authorization_code(Current.user, session[:oauth_params] || params.to_unsafe_h.slice(*%w[client_id redirect_uri response_type scope state nonce code_challenge code_challenge_method]))
+
+      redirect_uri = URI.parse(@redirect_uri)
+      redirect_uri.query = {
+        code: code,
+        state: @state
+      }.compact.to_query
+
+      redirect_to redirect_uri.to_s, allow_other_host: true
+    else
+      # Show consent screen for third-party apps
+      render :authorize
+    end
   end
 
-  # OAuth callback for testing
+  # OAuth callback endpoint
   def callback
-    # This is just for testing - in real OAuth, the client would handle this
-    render :callback
+    code = params[:code]
+    state = params[:state]
+
+    oauth_params = session[:oauth_params] || {}
+    pkce = session[:pkce] || {}
+
+    application = OauthApplication.find_by_uid(oauth_params[:client_id])
+    unless application
+      redirect_to root_path, alert: "OAuth client not found"
+      return
+    end
+
+    token_uri = URI.parse("#{request.base_url}/oauth/token")
+    request_body = {
+      grant_type: "authorization_code",
+      code: code,
+      client_id: application.uid,
+      client_secret: application.secret,
+      redirect_uri: oauth_params[:redirect_uri] || oauth_callback_url,
+      code_verifier: pkce[:code_verifier]
+    }
+
+    http = Net::HTTP.new(token_uri.host, token_uri.port)
+    http.use_ssl = token_uri.scheme == "https"
+    req = Net::HTTP::Post.new(token_uri.request_uri)
+    req["Content-Type"] = "application/x-www-form-urlencoded"
+    req.body = URI.encode_www_form(request_body.compact)
+
+    res = http.request(req)
+
+    if res.code.to_i.between?(200, 299)
+      body = JSON.parse(res.body) rescue {}
+      session[:oauth_tokens] = {
+        access_token: body["access_token"],
+        refresh_token: body["refresh_token"],
+        id_token: body["id_token"],
+        expires_at: Time.current.to_i + body.fetch("expires_in", 3600).to_i
+      }
+      session.delete(:oauth_params)
+      session.delete(:pkce)
+
+      redirect_to root_path, notice: "You are signed in."
+    else
+      Rails.logger.warn("OAuth token exchange failed: #{res.code} #{res.body}")
+      redirect_to root_path, alert: "OAuth token exchange failed."
+    end
   end
 
   # Handle authorization consent
@@ -140,6 +207,19 @@ class OauthController < ApplicationController
 
   private
 
+  def first_party_app?(application, user)
+    # Auto-approve if:
+    # 1. App belongs to the same user
+    # 2. Or it's a trusted first-party app
+    application.user == user || trusted_first_party_app?(application)
+  end
+
+  def trusted_first_party_app?(application)
+    # Auto-approve first-party applications (same domain/service)
+    # In production, this should be configurable via application settings
+    Rails.env.development? && application.name&.include?("Travelogue")
+  end
+
   def generate_authorization_code(user, oauth_params)
     code = SecureRandom.hex(32)
 
@@ -195,9 +275,9 @@ class OauthController < ApplicationController
     if auth_code_data[:code_challenge]
       expected_challenge = case auth_code_data[:code_challenge_method]
       when "S256"
-                            Digest::SHA256.base64digest(code_verifier)
+        Base64.urlsafe_encode64(Digest::SHA256.digest(code_verifier.to_s)).delete("=")
       else
-                            code_verifier
+        code_verifier.to_s
       end
 
       unless auth_code_data[:code_challenge] == expected_challenge

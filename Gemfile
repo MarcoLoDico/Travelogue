@@ -46,6 +46,9 @@ gem "tailwindcss-rails"
 # Load environment variables from .env file
 gem "dotenv-rails"
 
+# CORS handling
+gem "rack-cors"
+
 # OIDC and JWT support
 gem "jwt"
 gem "omniauth"

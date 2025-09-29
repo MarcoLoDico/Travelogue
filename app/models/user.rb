@@ -1,6 +1,4 @@
 class User < ApplicationRecord
-  has_secure_password
-
   has_many :sessions, dependent: :destroy
   has_many :visits, dependent: :destroy
   has_many :places, through: :visits
@@ -14,6 +12,8 @@ class User < ApplicationRecord
   def self.find_by_email_for_login(email)
     find_by(email_address: email.strip.downcase)
   end
+
+  # Password authentication removed; email-based OTP only
 
   # OIDC Claims
   def oidc_claims

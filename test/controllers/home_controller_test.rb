@@ -5,7 +5,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get root_path
     assert_response :success
     assert_select "h1", "Travelogue"
-    assert_select "a[href='#{new_user_path}']", "Sign In"
+    assert_select "a[href='#{start_oauth_path}']", "Sign In"
     assert_select "h1", { text: "My Travels", count: 0 }
   end
 
@@ -49,13 +49,13 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_select "table", { count: 0 }
   end
 
-  test "should show OAuth test section for unauthenticated users" do
+  test "should show sign in section for unauthenticated users" do
     get root_path
     assert_response :success
 
-    assert_select "h2", "OAuth Test"
-    assert_select "p", text: /Test the OAuth 2.0 \/ OpenID Connect flow:/
-    assert_select "a", text: "OAuth Authorization"
+    assert_select "h2", "Sign In"
+    assert_select "p", text: /Authenticate to access your account/
+    assert_select "a[href='#{start_oauth_path}']", text: "Sign In"
   end
 
   test "should not show OAuth test section for authenticated users" do
