@@ -50,12 +50,9 @@ gem "dotenv-rails"
 gem "csv"
 
 # CORS handling
-gem "rack-cors"
+# rack-cors removed: no cross-origin needed for email-only auth
 
-# OIDC and JWT support
-gem "jwt"
-gem "omniauth"
-gem "omniauth-oauth2"
+# OAuth/OIDC gems removed: email-only auth with one-time codes
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

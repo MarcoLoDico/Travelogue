@@ -5,7 +5,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get root_path
     assert_response :success
     assert_select "h1", "Travelogue"
-    assert_select "a[href='#{new_user_path}']", "Sign In with Email"
+    assert_select "a[href='#{new_user_path}']", "Sign In"
     assert_select "h1", { text: "My Travels", count: 0 }
   end
 
@@ -55,17 +55,8 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "h2", "Sign In"
     assert_select "p", text: /Authenticate to access your account/
-    assert_select "a[href='#{new_user_path}']", text: "Sign In with Email"
+    assert_select "a[href='#{new_user_path}']", text: "Sign In"
   end
 
-  test "should not show OAuth test section for authenticated users" do
-    user = users(:alice)
-    sign_in_user(user)
-
-    get root_path
-    assert_response :success
-
-    assert_select "h2", { text: "OAuth Test", count: 0 }
-    assert_select "a", { text: "OAuth Authorization", count: 0 }
-  end
+  # OAuth removed: no OAuth section expected
 end

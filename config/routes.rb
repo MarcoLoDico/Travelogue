@@ -4,16 +4,6 @@ Rails.application.routes.draw do
   resources :one_time_codes, only: [ :new, :create ]
   get "resend_code", to: "one_time_codes#resend", as: :resend_one_time_code
 
-  # OAuth 2.0 / OpenID Connect endpoints
-  get "oauth/authorize", to: "oauth#authorize"
-  post "oauth/authorize", to: "oauth#consent"
-  post "oauth/token", to: "oauth#token"
-  get "oauth/userinfo", to: "oauth#userinfo"
-  get "oauth/jwks", to: "oauth#jwks"
-  get "oauth/callback", to: "oauth#callback"
-  # Support clients configured with "/callback" as redirect_uri
-  get "callback", to: "oauth#callback"
-
   # Visits API for map
   resources :visits, only: [ :index, :create, :destroy, :update ] do
     collection do
@@ -33,5 +23,4 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   root "home#index"
-  get "start_oauth", to: "home#start_oauth"
 end

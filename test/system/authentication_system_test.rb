@@ -14,11 +14,8 @@ class AuthenticationSystemTest < ApplicationSystemTestCase
     assert_text "Document your travel journey"
     assert_link "Sign In"
 
-    # Step 2: Click sign in (OAuth button)
+    # Step 2: Click sign in (email flow)
     click_link "Sign In"
-
-    # In system tests, avoid external OAuth redirect by going directly to email sign-in page
-    visit new_user_path
 
     # Should see sign in form
     assert_text "Sign In"
@@ -47,12 +44,7 @@ class AuthenticationSystemTest < ApplicationSystemTestCase
     fill_in "6-Digit Code", with: code
     click_button "Verify Code"
 
-    # Consent may auto-approve depending on app; handle both cases
-    if page.has_text?("Authorize Application")
-      click_button "Authorize"
-    end
-
-    # After consent, we return home and should be signed in
+    # After verify, we should be signed in and on home
     assert_text "My Travels"
     assert_text "Places I've visited"
     assert_link "Sign Out"
@@ -67,9 +59,8 @@ class AuthenticationSystemTest < ApplicationSystemTestCase
     # Step 1: Visit landing page
     visit root_path
 
-    # Step 2: Click sign in and navigate directly to email sign-in form to avoid external redirects
+    # Step 2: Click sign in to go to email sign-in form
     click_link "Sign In"
-    visit new_user_path
 
     # Step 3: Enter existing email
     fill_in "Email address", with: user.email_address
@@ -84,13 +75,7 @@ class AuthenticationSystemTest < ApplicationSystemTestCase
     fill_in "6-Digit Code", with: code
     click_button "Verify Code"
 
-    # Consent may auto-approve depending on app; handle both cases
-    if page.has_text?("Authorize Application")
-      click_button "Authorize"
-    end
-
     # Ensure we land on home
-    visit root_path
     assert_text "My Travels"
     assert_text "Toronto"
     assert_text "Paris"
@@ -178,46 +163,7 @@ class AuthenticationSystemTest < ApplicationSystemTestCase
     assert_no_text "My Travels"
   end
 
-  test "OAuth authorization flow" do
-    user = users(:alice)
-    app = oauth_applications(:web_app)
-
-    # Step 1: Start OAuth flow
-    visit "/oauth/authorize?client_id=#{app.uid}&redirect_uri=#{app.redirect_uri}&response_type=code&scope=openid profile email&state=test123"
-
-    # Should redirect to sign in
-    assert_text "Sign In"
-
-    # Step 2: Sign in
-    fill_in "Email address", with: user.email_address
-    click_button "Send Login Code"
-
-    code = user.one_time_codes.last.code
-    fill_in "6-Digit Code", with: code
-    click_button "Verify Code"
-
-    # Auto-approval for first-party apps: no consent screen shown
-    # Rack::Test will not follow external redirects; after verify we should land back on root
-    assert_current_path "/"
-  end
-
-  test "OAuth flow auto-approves first party (no consent)" do
-    user = users(:alice)
-    app = oauth_applications(:web_app)
-
-    # Step 1: Start OAuth flow and sign in
-    visit "/oauth/authorize?client_id=#{app.uid}&redirect_uri=#{app.redirect_uri}&response_type=code&scope=openid profile email&state=test123"
-
-    fill_in "Email address", with: user.email_address
-    click_button "Send Login Code"
-
-    code = user.one_time_codes.last.code
-    fill_in "6-Digit Code", with: code
-    click_button "Verify Code"
-
-    # Auto-approval means no consent choice; we should return to root
-    assert_current_path "/"
-  end
+  # OAuth removed: delete OAuth-specific system tests
 
   test "mobile responsive design" do
     # Step 1: Visit on mobile viewport
