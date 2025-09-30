@@ -18,7 +18,7 @@
             autofocus: true, 
             autocomplete: "email", 
             placeholder: "Enter your email address", 
-            class: "w-full px-4 py-3 border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 #{flash[:alert] ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'}" %>
+            class: "w-full px-4 py-3 border-2 rounded-lg shadow-sm focus:outline-none #{flash[:alert] ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}" %>
       </div>
 
       <%= form.submit "Send Login Code", 

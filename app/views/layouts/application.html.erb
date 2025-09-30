@@ -23,7 +23,8 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body data-controller="profile-modal">
     <%= yield %>
+    <%= render 'shared/profile_modal' if authenticated? %>
   </body>
 </html>

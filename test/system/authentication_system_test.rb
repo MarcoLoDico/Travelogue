@@ -44,10 +44,14 @@ class AuthenticationSystemTest < ApplicationSystemTestCase
     fill_in "6-Digit Code", with: code
     click_button "Verify Code"
 
-    # After verify, we should be signed in and on home
+    # New users should see username setup page
+    assert_text "Choose a Username"
+    fill_in "Username", with: "newuser"
+    click_button "Save & Continue"
+
+    # After username setup, should be on home
     assert_text "My Travels"
-    assert_text "Places I've visited"
-    assert_link "Sign Out"
+    assert_button "Profile"
 
     # Should not see sign in link
     assert_no_link "Sign In"
@@ -153,8 +157,14 @@ class AuthenticationSystemTest < ApplicationSystemTestCase
     # Should be signed in
     assert_text "My Travels"
 
-    # Step 2: Sign out
-    click_link "Sign Out"
+    # Step 2: Sign out via sessions controller
+    # Note: rack_test can't handle JavaScript modal interactions
+    # We test the sign out directly via the controller
+    visit session_path
+    page.driver.delete session_path
+
+    # Visit root to see if we're logged out
+    visit root_path
 
     # Should be signed out and see landing page
     assert_text "Travelogue"

@@ -4,18 +4,18 @@
   <% if authenticated? %>
     <!-- Authenticated User View -->
     <div class="max-w-6xl mx-auto">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 space-y-4 sm:space-y-0">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 space-y-4 sm:space-y-0 bg-white py-2">
         <div>
           <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">My Travels</h1>
-          <p class="text-gray-600 mt-2">Places I've visited</p>
+          <p class="text-gray-600 mt-2">Welcome back, <%= Current.user.display_name %>!</p>
         </div>
-        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
-          <%= link_to "Add Place", "#user-map", data: { turbo: false }, class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-center" %>
-          <%= link_to "Sign Out", session_path, data: { turbo_method: :delete }, class: "bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-center" %>
-          <div class="flex space-x-2">
-            <%= link_to "CSV", export_visits_path(format: :csv), class: "bg-white border text-gray-700 hover:bg-gray-50 px-3 py-2 rounded" %>
-            <%= link_to "JSON", export_visits_path(format: :json), class: "bg-white border text-gray-700 hover:bg-gray-50 px-3 py-2 rounded" %>
-          </div>
+        <div class="w-full sm:w-auto flex justify-end">
+          <button type="button" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg shadow-sm transition-colors duration-200 cursor-pointer font-medium" data-action="click->profile-modal#open">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            <span>Profile</span>
+          </button>
         </div>
       </div>
       <!-- Map for adding/seeing visits -->
@@ -26,6 +26,12 @@
 
       <% if @user_places.any? %>
         <!-- Desktop Table View -->
+        <div class="flex justify-end mb-3">
+          <div class="flex space-x-4">
+            <%= link_to "CSV", export_visits_path(format: :csv), class: "bg-white border text-gray-700 hover:bg-gray-50 px-3 py-2 rounded" %>
+            <%= link_to "JSON", export_visits_path(format: :json), class: "bg-white border text-gray-700 hover:bg-gray-50 px-3 py-2 rounded" %>
+          </div>
+        </div>
         <div id="visits-list" class="hidden sm:block bg-white shadow rounded-lg overflow-hidden">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
@@ -125,5 +131,4 @@
       </div>
     </div>
   <% end %>
-</div>
 </div>

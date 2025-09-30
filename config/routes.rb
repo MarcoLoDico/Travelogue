@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   resources :users, only: [ :new, :create ]
   resources :one_time_codes, only: [ :new, :create ]
   get "resend_code", to: "one_time_codes#resend", as: :resend_one_time_code
+  resource :username, only: [ :show, :create, :update ]
 
   # Visits API for map
   resources :visits, only: [ :index, :create, :destroy, :update ] do

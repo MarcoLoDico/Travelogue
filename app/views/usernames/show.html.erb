@@ -1,0 +1,46 @@
+<% content_for :title, "Set Up Your Username - Travelogue" %>
+
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4 py-8">
+  <div class="w-full max-w-md bg-white rounded-lg shadow-lg p-6 sm:p-8">
+    <div class="text-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-900 mb-2">Choose a Username</h1>
+      <p class="text-gray-600">This will be shown in your Travelogue and visible to other users.</p>
+    </div>
+
+    <%= tag.div(flash[:notice], class: "bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4") if flash[:notice] %>
+    <%= tag.div(flash[:alert], class: "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4") if flash[:alert] %>
+    <% if defined?(@user) && @user.errors.any? %>
+      <div class="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <ul class="list-disc list-inside text-sm">
+          <% @user.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form_with model: @user, url: username_path, method: :post, local: true, class: "space-y-4" do |form| %>
+      <div>
+        <%= form.label :username, "Username", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= form.text_field :username,
+            required: true,
+            autofocus: true,
+            placeholder: "e.g. travel_fan",
+            class: "w-full px-4 py-3 border-2 rounded-lg shadow-sm focus:outline-none #{(@user && @user.errors[:username].present?) ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}",
+            maxlength: 50 %>
+        <p class="text-xs text-gray-500 mt-1">3-50 chars, letters, numbers, underscores only</p>
+        <% if @user && @user.errors[:username].present? %>
+          <p class="text-sm text-red-600 mt-1"><%= @user.errors[:username].first %></p>
+        <% end %>
+      </div>
+
+      <%= form.submit "Save & Continue",
+          class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200" %>
+    <% end %>
+
+    <div class="mt-6 text-center">
+      <%= link_to "Back to Home", root_path,
+          class: "text-blue-600 hover:text-blue-700 text-sm" %>
+    </div>
+  </div>
+</div>

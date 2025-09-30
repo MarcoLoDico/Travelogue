@@ -16,7 +16,8 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get root_path
     assert_response :success
     assert_select "h1", "My Travels"
-    assert_select "a[href='#{session_path}'][data-turbo-method='delete']", "Sign Out"
+    assert_select "button[data-action='click->profile-modal#open']", "Profile"
+    assert_select "#profile-modal"
     assert_select "td", "Toronto"
     assert_select "td", "Paris"
   end

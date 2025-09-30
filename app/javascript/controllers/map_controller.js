@@ -137,7 +137,7 @@ export default class extends Controller {
     overlay.style.position = "fixed"
     overlay.style.inset = 0
     overlay.style.background = "rgba(0,0,0,0.4)"
-    overlay.style.zIndex = 1000
+    overlay.style.zIndex = 2000
 
     const modal = document.createElement("div")
     modal.style.position = "absolute"
@@ -209,7 +209,7 @@ export default class extends Controller {
       overlay.style.position = "fixed"
       overlay.style.inset = 0
       overlay.style.background = "rgba(0,0,0,0.4)"
-      overlay.style.zIndex = 1000
+      overlay.style.zIndex = 2000
 
       const modal = document.createElement("div")
       modal.style.position = "absolute"

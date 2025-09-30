@@ -50,14 +50,13 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
       code: code
     }
 
-    # Should redirect to home page
-    assert_redirected_to root_path
+    # New users should be redirected to username setup
+    assert_redirected_to username_path
     follow_redirect!
 
-    # Should be signed in
+    # Should be on username setup page
     assert_response :success
-    assert_select "h1", "My Travels"
-    assert_select "a[href='#{session_path}'][data-turbo-method='delete']", "Sign Out"
+    assert_select "h1", "Choose a Username"
   end
 
   test "sign in flow for existing user" do
