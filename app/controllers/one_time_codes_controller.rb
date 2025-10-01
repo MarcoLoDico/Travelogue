@@ -32,7 +32,12 @@ class OneTimeCodesController < ApplicationController
     if one_time_code
       one_time_code.use!
       start_new_session_for user
-      redirect_to root_path, notice: "Welcome back! You've been signed in successfully."
+
+      if user.needs_username_setup?
+        redirect_to username_path, notice: "Welcome! Please set up your username to continue."
+      else
+        redirect_to root_path, notice: "Welcome back! You've been signed in successfully."
+      end
     else
       flash.now[:alert] = "Invalid or expired code. Please try again."
       render :new, status: :unprocessable_entity
@@ -40,7 +45,7 @@ class OneTimeCodesController < ApplicationController
   end
 
   def resend
-    @email = params[:email]
+    @email = params[:email] || (params[:one_time_code] && params[:one_time_code][:email])
     user = User.find_by_email_for_login(@email)
 
     if user

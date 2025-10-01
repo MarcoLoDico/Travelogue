@@ -22,7 +22,18 @@ export default class extends Controller {
 
     this.#loadExistingVisits()
 
-    this.map.on("click", (e) => this.#handleClick(e))
+    // Store bound click handler for cleanup
+    this._handleMapClick = (e) => this.#handleClick(e)
+    this.map.on("click", this._handleMapClick)
+  }
+
+  disconnect() {
+    // Clean up map resources to prevent memory leaks
+    if (this.map) {
+      this.map.off("click", this._handleMapClick)
+      this.map.remove()
+      this.map = null
+    }
   }
 
   #ensureLeafletCss() {
@@ -67,10 +78,9 @@ export default class extends Controller {
     if (details === null) return // cancelled
     const payload = new URLSearchParams({ lat: lat.toString(), lon: lng.toString(), ...details })
     try {
-      const token = document.querySelector('meta[name="csrf-token"]')?.content
       const resp = await fetch(this.createUrlValue, {
         method: "POST",
-        headers: { "Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded", "X-CSRF-Token": token },
+        headers: { "Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded", "X-CSRF-Token": this.#getCsrfToken() },
         body: payload.toString(),
         credentials: "same-origin"
       })
@@ -87,8 +97,7 @@ export default class extends Controller {
   }
 
   async #deleteMarker(marker, id) {
-    const token = document.querySelector('meta[name="csrf-token"]')?.content
-    const resp = await fetch(`/visits/${id}`, { method: "DELETE", headers: { "X-CSRF-Token": token } })
+    const resp = await fetch(`/visits/${id}`, { method: "DELETE", headers: { "X-CSRF-Token": this.#getCsrfToken() } })
     if (resp.ok) {
       this.map.removeLayer(marker)
     }
@@ -137,7 +146,7 @@ export default class extends Controller {
     overlay.style.position = "fixed"
     overlay.style.inset = 0
     overlay.style.background = "rgba(0,0,0,0.4)"
-    overlay.style.zIndex = 1000
+    overlay.style.zIndex = 2000
 
     const modal = document.createElement("div")
     modal.style.position = "absolute"
@@ -163,11 +172,10 @@ export default class extends Controller {
 
     overlay.querySelector('#edit-cancel').onclick = () => document.body.removeChild(overlay)
     overlay.querySelector('#edit-save').onclick = async () => {
-      const token = document.querySelector('meta[name="csrf-token"]')?.content
       const visited_on = overlay.querySelector('#edit-date').value
       const notes = overlay.querySelector('#edit-notes').value
       const body = new URLSearchParams({ visited_on, notes })
-      const resp = await fetch(`/visits/${id}`, { method: 'PATCH', headers: { 'X-CSRF-Token': token, 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' }, body: body.toString() })
+      const resp = await fetch(`/visits/${id}`, { method: 'PATCH', headers: { 'X-CSRF-Token': this.#getCsrfToken(), 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' }, body: body.toString() })
       if (resp.ok) {
         document.body.removeChild(overlay)
       }
@@ -209,7 +217,7 @@ export default class extends Controller {
       overlay.style.position = "fixed"
       overlay.style.inset = 0
       overlay.style.background = "rgba(0,0,0,0.4)"
-      overlay.style.zIndex = 1000
+      overlay.style.zIndex = 2000
 
       const modal = document.createElement("div")
       modal.style.position = "absolute"
@@ -244,6 +252,10 @@ export default class extends Controller {
         resolve({ ...(name ? { name } : {}), ...(visited_on ? { visited_on } : {}), ...(notes ? { notes } : {}) })
       }
     })
+  }
+
+  #getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]')?.content
   }
 }
 

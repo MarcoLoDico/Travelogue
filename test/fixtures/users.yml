@@ -1,11 +1,13 @@
 # Realistic user fixtures for testing
 alice:
   email_address: alice@example.com
+  username: alice_travels
   created_at: <%= 1.week.ago %>
   updated_at: <%= 1.week.ago %>
 
 bob:
   email_address: bob@example.com
+  username: bob_explorer
   created_at: <%= 3.days.ago %>
   updated_at: <%= 3.days.ago %>
 
