@@ -4,15 +4,15 @@ A personal travel tracking web application that lets you record and visualize th
 
 ## Overview
 
-Travelogue provides an intuitive way to document your travels. Click anywhere on the map to add a visit, attach dates and notes, and build your personal travel history. The app uses a passwordless authentication system—simply enter your email and receive a one-time code to sign in.
+Travelogue provides an intuitive way to document your travels. Click anywhere on the map to add a visit, attach dates and notes, and build your personal travel history.
 
 ## Features
 
 - **Interactive Map** – View all your visits on a Leaflet-powered world map
 - **Quick Visit Logging** – Click to add a new visit with optional date and notes
 - **Edit & Delete** – Update visit details or remove entries (right-click to delete)
-- **Passwordless Auth** – Secure email-based login with one-time codes
-- **Export** – Download your travel data
+- **Secure Authentication** – Email/password login with bcrypt password hashing
+- **Export** – Download your travel data in CSV or JSON format
 - **Mobile-Friendly** – Responsive design with Tailwind CSS
 
 ## Tech Stack
@@ -33,7 +33,6 @@ Travelogue provides an intuitive way to document your travels. Click anywhere on
 
 - **Ruby 3.4.6** (recommend using [rbenv](https://github.com/rbenv/rbenv) or [asdf](https://asdf-vm.com/))
 - **Bundler** (`gem install bundler`)
-- **Node.js** (for Tailwind CSS build, optional if using pre-built assets)
 - **SQLite 3** development headers
 
 On Debian/Ubuntu:
@@ -63,26 +62,17 @@ cd travelogue
 bundle install
 ```
 
-### 3. Configure Environment Variables
-
-Create a `.env` file in the project root (see `.env.example` if available):
-
-```bash
-# Required for seeding a test user
-TEST_USER_EMAIL=you@example.com
-
-# Optional: email delivery settings for one-time codes in development
-# ACTION_MAILER_SMTP_ADDRESS=...
-# ACTION_MAILER_SMTP_PORT=...
-```
-
-### 4. Set Up the Database
+### 3. Set Up the Database
 
 ```bash
 bin/rails db:setup
 ```
 
-This will create the database, run migrations, and seed initial data (a test user and sample visit).
+This will create the database, run migrations, and seed initial data with a demo user.
+
+Default credentials (development):
+- **Email:** `demo@travelogue.dev`
+- **Password:** `password123`
 
 ## Running the Application
 
@@ -166,7 +156,7 @@ docker run -p 3000:3000 travelogue
 
 ```
 app/
-├── controllers/      # Request handlers (sessions, visits, etc.)
+├── controllers/      # Request handlers (sessions, users, visits, etc.)
 ├── javascript/       # Stimulus controllers (map interactions)
 ├── models/           # ActiveRecord models (User, Place, Visit, etc.)
 └── views/            # ERB templates
@@ -184,10 +174,9 @@ config/
 
 | Model | Description |
 |-------|-------------|
-| `User` | Account identified by email address |
+| `User` | Account with email and password authentication |
 | `Place` | Geographic location (city, landmark, etc.) |
 | `Visit` | A user's recorded visit to a place |
-| `OneTimeCode` | Passwordless auth codes |
 | `Session` | Active user sessions |
 
 ## Contributing

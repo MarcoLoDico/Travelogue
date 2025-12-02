@@ -1,100 +1,55 @@
 require "test_helper"
 
 class AuthenticationFlowTest < ActionDispatch::IntegrationTest
-  def setup
-    clear_emails
-  end
-
   test "complete sign up flow for new user" do
-    # Step 1: Visit sign in page
+    # Step 1: Visit sign up page
     get new_user_path
     assert_response :success
-    assert_select "h1", "Sign In"
+    assert_select "h1", "Create Account"
     assert_select "input[name='user[email_address]']"
+    assert_select "input[name='user[password]']"
+    assert_select "input[name='user[password_confirmation]']"
 
-    # Step 2: Submit email address
-    post users_path, params: {
-      user: { email_address: "newuser@example.com" }
-    }
+    # Step 2: Submit registration form
+    assert_difference "User.count", 1 do
+      post users_path, params: {
+        user: {
+          email_address: "newuser@example.com",
+          password: "securepassword123",
+          password_confirmation: "securepassword123"
+        }
+      }
+    end
 
-    # Should redirect to code entry page with email and code parameters
-    assert_response :redirect
-    assert_match %r{/one_time_codes/new\?}, response.redirect_url
-    assert_match %r{email=}, response.redirect_url
-    assert_match %r{code=\d{6}}, response.redirect_url
+    # Should redirect to home page
+    assert_redirected_to root_path
     follow_redirect!
 
-    # Should show code entry form
+    # Should be signed in
     assert_response :success
-    assert_select "h1", "Enter Login Code"
-    assert_select "input[name='code']"
+    assert_select "h1", "My Travels"
+    assert_select "button[data-action='click->profile-modal#open']", "Profile"
 
-    # Process enqueued emails
-    perform_enqueued_jobs
-
-    # Should have sent email
-    email = last_email
-    assert_not_nil email
-    assert_equal "newuser@example.com", email.to.first
-    assert_equal "Your Travelogue login code", email.subject
-
-    # Should have created user
+    # User should exist
     user = User.find_by(email_address: "newuser@example.com")
     assert_not_nil user
-    assert_not_nil user.one_time_codes.last
-
-    # Step 3: Enter the code (use development code)
-    code = user.one_time_codes.last.code
-    post one_time_codes_path, params: {
-      email: "newuser@example.com",
-      code: code
-    }
-
-    # New users should be redirected to username setup
-    assert_redirected_to username_path
-    follow_redirect!
-
-    # Should be on username setup page
-    assert_response :success
-    assert_select "h1", "Choose a Username"
+    assert user.authenticate("securepassword123")
   end
 
   test "sign in flow for existing user" do
     user = users(:alice)
 
     # Step 1: Visit sign in page
-    get new_user_path
+    get new_session_path
     assert_response :success
+    assert_select "h1", "Sign In"
+    assert_select "input[name='email_address']"
+    assert_select "input[name='password']"
 
-    # Step 2: Submit existing email address
-    post users_path, params: {
-      user: { email_address: user.email_address }
-    }
-
-    # Should redirect to code entry page with email and code parameters
-    assert_response :redirect
-    assert_match %r{/one_time_codes/new\?}, response.redirect_url
-    assert_match %r{email=}, response.redirect_url
-    assert_match %r{code=\d{6}}, response.redirect_url
-    follow_redirect!
-
-    # Should show code entry form
-    assert_response :success
-    assert_select "h1", "Enter Login Code"
-
-    # Process enqueued emails
-    perform_enqueued_jobs
-
-    # Should have sent email
-    email = last_email
-    assert_not_nil email
-    assert_equal user.email_address, email.to.first
-
-    # Step 3: Enter the code
-    code = user.one_time_codes.last.code
-    post one_time_codes_path, params: {
-      email: user.email_address,
-      code: code
+    # Step 2: Submit login form
+    post session_path, params: {
+      email_address: user.email_address,
+      password: "password123"
     }
 
     # Should redirect to home page
@@ -108,94 +63,70 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_select "td", "Paris"
   end
 
-  test "invalid email address" do
-    # Step 1: Submit invalid email
+  test "invalid email on registration" do
     post users_path, params: {
-      user: { email_address: "invalid-email" }
+      user: {
+        email_address: "invalid-email",
+        password: "securepassword123",
+        password_confirmation: "securepassword123"
+      }
     }
 
     # Should render form with errors
     assert_response :unprocessable_entity
-    assert_select ".bg-red-100" # Error message box
-    assert_select "input[name='user[email_address]'].border-red-500" # Red border
+    assert_select ".bg-red-100"
   end
 
-  test "invalid or expired code" do
+  test "password too short on registration" do
+    post users_path, params: {
+      user: {
+        email_address: "newuser@example.com",
+        password: "short",
+        password_confirmation: "short"
+      }
+    }
+
+    # Should render form with errors
+    assert_response :unprocessable_entity
+    assert_select ".bg-red-100"
+  end
+
+  test "password confirmation mismatch on registration" do
+    post users_path, params: {
+      user: {
+        email_address: "newuser@example.com",
+        password: "securepassword123",
+        password_confirmation: "differentpassword"
+      }
+    }
+
+    # Should render form with errors
+    assert_response :unprocessable_entity
+    assert_select ".bg-red-100"
+  end
+
+  test "invalid credentials on login" do
     user = users(:alice)
 
-    # Step 1: Get to code entry page
-    post users_path, params: {
-      user: { email_address: user.email_address }
-    }
-    follow_redirect!
-
-    # Step 2: Enter invalid code
-    post one_time_codes_path, params: {
-      email: user.email_address,
-      code: "000000"
+    post session_path, params: {
+      email_address: user.email_address,
+      password: "wrongpassword"
     }
 
     # Should render form with error
     assert_response :unprocessable_entity
-    assert_select ".bg-red-100" # Error message box
-    assert_select "input[name='code']"
+    assert_select ".bg-red-100"
   end
 
-  test "expired code" do
-    user = users(:alice)
-    expired_code = user.one_time_codes.create!(
-      code: "999999",
-      expires_at: 1.hour.ago,
-      used: false
-    )
-
-    # Step 1: Get to code entry page
-    post users_path, params: {
-      user: { email_address: user.email_address }
-    }
-    follow_redirect!
-
-    # Step 2: Enter expired code
-    post one_time_codes_path, params: {
-      email: user.email_address,
-      code: "999999"
+  test "nonexistent user on login" do
+    post session_path, params: {
+      email_address: "nonexistent@example.com",
+      password: "password123"
     }
 
     # Should render form with error
     assert_response :unprocessable_entity
-    assert_select ".bg-red-100" # Error message box
-  end
-
-  test "resend code flow" do
-    user = users(:alice)
-
-    # Step 1: Get to code entry page
-    post users_path, params: {
-      user: { email_address: user.email_address }
-    }
-    follow_redirect!
-
-    # Step 2: Resend code
-    get resend_one_time_code_path(email: user.email_address)
-
-    # Should redirect back to code entry page with email and code parameters
-    assert_response :redirect
-    assert_match %r{/one_time_codes/new\?}, response.redirect_url
-    assert_match %r{email=}, response.redirect_url
-    assert_match %r{code=\d{6}}, response.redirect_url
-    follow_redirect!
-
-    # Should show success message
-    assert_response :success
-    assert_select ".bg-green-100" # Success message box
-
-    # Process enqueued emails
-    perform_enqueued_jobs
-
-    # Should have sent new email
-    email = last_email
-    assert_not_nil email
-    assert_equal user.email_address, email.to.first
+    assert_select ".bg-red-100"
   end
 
   test "sign out flow" do
@@ -214,14 +145,13 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
     follow_redirect!
 
-    # Should show sign in page
+    # Should show landing page
     assert_response :success
     assert_select "h1", "Travelogue"
-    assert_select "a[href='#{new_user_path}']", "Sign In"
+    assert_select "a[href='#{new_session_path}']", "Sign In"
   end
 
   test "home page accessible without authentication" do
-    # Try to access home page without being signed in
     get root_path
 
     # Should show home page (not redirect)
@@ -233,50 +163,54 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     user = users(:alice)
 
     # Step 1: Sign in
-    post users_path, params: {
-      user: { email_address: user.email_address }
-    }
-    follow_redirect!
-
-    code = user.one_time_codes.last.code
-    post one_time_codes_path, params: {
-      email: user.email_address,
-      code: code
+    post session_path, params: {
+      email_address: user.email_address,
+      password: "password123"
     }
     follow_redirect!
 
     # Step 2: Make another request
     get root_path
     assert_response :success
-    assert_select "h1", "My Travels" # Still signed in
+    assert_select "h1", "My Travels"
   end
 
-  test "multiple failed login attempts" do
-    user = users(:alice)
+  test "protected routes redirect to sign in" do
+    # Try to access visits without being signed in
+    get visits_path
 
-    # Step 1: Get to code entry page
-    post users_path, params: {
-      user: { email_address: user.email_address }
-    }
-    follow_redirect!
+    # Should redirect to sign in
+    assert_response :redirect
+    assert_match %r{/session/new}, response.redirect_url
+  end
 
-    # Step 2: Make multiple failed attempts
-    3.times do
-      post one_time_codes_path, params: {
-        email: user.email_address,
-        code: "000000"
+  test "duplicate email on registration" do
+    existing_user = users(:alice)
+
+    assert_no_difference "User.count" do
+      post users_path, params: {
+        user: {
+          email_address: existing_user.email_address,
+          password: "securepassword123",
+          password_confirmation: "securepassword123"
+        }
       }
-      assert_response :unprocessable_entity
     end
 
-    # Step 3: Successfully enter correct code
-    code = user.one_time_codes.last.code
-    post one_time_codes_path, params: {
-      email: user.email_address,
-      code: code
-    }
+    # Should render form with errors
+    assert_response :unprocessable_entity
+    assert_select ".bg-red-100"
+  end
 
-    # Should still work
-    assert_redirected_to root_path
+  test "navigation between sign in and sign up" do
+    # Start at sign in
+    get new_session_path
+    assert_response :success
+    assert_select "a[href='#{new_user_path}']", "Create an account"
+
+    # Go to sign up
+    get new_user_path
+    assert_response :success
+    assert_select "a[href='#{new_session_path}']", "Sign in"
   end
 end

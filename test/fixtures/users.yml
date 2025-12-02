@@ -1,23 +1,23 @@
-# Realistic user fixtures for testing
+# User fixtures with password authentication
+# All test users use the password: "password123"
+# BCrypt cost is set low for faster test execution
+
 alice:
   email_address: alice@example.com
   username: alice_travels
+  password_digest: <%= BCrypt::Password.create("password123", cost: BCrypt::Engine::MIN_COST) %>
   created_at: <%= 1.week.ago %>
   updated_at: <%= 1.week.ago %>
 
 bob:
   email_address: bob@example.com
-  username: bob_explorer
+  username: bob_adventures
+  password_digest: <%= BCrypt::Password.create("password123", cost: BCrypt::Engine::MIN_COST) %>
   created_at: <%= 3.days.ago %>
   updated_at: <%= 3.days.ago %>
 
 charlie:
   email_address: charlie@example.com
+  password_digest: <%= BCrypt::Password.create("password123", cost: BCrypt::Engine::MIN_COST) %>
   created_at: <%= 1.day.ago %>
   updated_at: <%= 1.day.ago %>
-
-# Test user for OAuth flows
-oauth_user:
-  email_address: oauth@example.com
-  created_at: <%= 2.weeks.ago %>
-  updated_at: <%= 2.weeks.ago %>
