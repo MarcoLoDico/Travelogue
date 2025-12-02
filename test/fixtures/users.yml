@@ -4,12 +4,14 @@
 
 alice:
   email_address: alice@example.com
+  username: alice_travels
   password_digest: <%= BCrypt::Password.create("password123", cost: BCrypt::Engine::MIN_COST) %>
   created_at: <%= 1.week.ago %>
   updated_at: <%= 1.week.ago %>
 
 bob:
   email_address: bob@example.com
+  username: bob_adventures
   password_digest: <%= BCrypt::Password.create("password123", cost: BCrypt::Engine::MIN_COST) %>
   created_at: <%= 3.days.ago %>
   updated_at: <%= 3.days.ago %>

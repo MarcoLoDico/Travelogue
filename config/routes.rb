@@ -3,6 +3,9 @@ Rails.application.routes.draw do
   resource :session, only: %i[new create destroy]
   resources :users, only: %i[new create]
 
+  # Profile / Username
+  resource :username, only: %i[show create update]
+
   # Visits API for map
   resources :visits, only: %i[index create destroy update] do
     collection do

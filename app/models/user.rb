@@ -9,6 +9,15 @@ class User < ApplicationRecord
                             uniqueness: { case_sensitive: false },
                             format: { with: URI::MailTo::EMAIL_REGEXP, message: "is invalid" }
   validates :password, length: { minimum: 8 }, if: -> { password.present? }
+  validates :username, length: { in: 3..50 },
+                       format: { with: /\A[a-zA-Z0-9_]+\z/, message: "can only contain letters, numbers, and underscores" },
+                       uniqueness: { case_sensitive: false },
+                       allow_blank: true
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
+  normalizes :username, with: ->(u) { u.strip }
+
+  def display_name
+    username.presence || email_address.split("@").first
+  end
 end

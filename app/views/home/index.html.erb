@@ -11,7 +11,7 @@
         </div>
         <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
           <%= link_to "Add Place", "#user-map", data: { turbo: false }, class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-center" %>
-          <%= link_to "Sign Out", session_path, data: { turbo_method: :delete }, class: "bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-center" %>
+          <button type="button" data-action="click->profile-modal#open" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-center">Profile</button>
           <div class="flex space-x-2">
             <%= link_to "CSV", export_visits_path(format: :csv), class: "bg-white border text-gray-700 hover:bg-gray-50 px-3 py-2 rounded" %>
             <%= link_to "JSON", export_visits_path(format: :json), class: "bg-white border text-gray-700 hover:bg-gray-50 px-3 py-2 rounded" %>

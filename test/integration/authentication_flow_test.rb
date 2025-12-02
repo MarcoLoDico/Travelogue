@@ -28,7 +28,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     # Should be signed in
     assert_response :success
     assert_select "h1", "My Travels"
-    assert_select "a[href='#{session_path}'][data-turbo-method='delete']", "Sign Out"
+    assert_select "button[data-action='click->profile-modal#open']", "Profile"
 
     # User should exist
     user = User.find_by(email_address: "newuser@example.com")

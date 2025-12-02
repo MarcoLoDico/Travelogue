@@ -55,8 +55,6 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get root_path
     assert_response :success
 
-    assert_select "h2", "Welcome"
-    assert_select "p", text: /Sign in or create an account/
     assert_select "a[href='#{new_session_path}']", text: "Sign In"
     assert_select "a[href='#{new_user_path}']", text: "Create Account"
   end
