@@ -57,6 +57,4 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_select "p", text: /Authenticate to access your account/
     assert_select "a[href='#{new_user_path}']", text: "Sign In"
   end
-
-  # OAuth removed: no OAuth section expected
 end
