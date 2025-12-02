@@ -5,7 +5,8 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get root_path
     assert_response :success
     assert_select "h1", "Travelogue"
-    assert_select "a[href='#{new_user_path}']", "Sign In"
+    assert_select "a[href='#{new_session_path}']", "Sign In"
+    assert_select "a[href='#{new_user_path}']", "Create Account"
     assert_select "h1", { text: "My Travels", count: 0 }
   end
 
@@ -39,7 +40,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should show empty state when no visits" do
-    user = users(:charlie) # User with no visits
+    user = users(:charlie)
     sign_in_user(user)
 
     get root_path
@@ -54,8 +55,9 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get root_path
     assert_response :success
 
-    assert_select "h2", "Sign In"
-    assert_select "p", text: /Authenticate to access your account/
-    assert_select "a[href='#{new_user_path}']", text: "Sign In"
+    assert_select "h2", "Welcome"
+    assert_select "p", text: /Sign in or create an account/
+    assert_select "a[href='#{new_session_path}']", text: "Sign In"
+    assert_select "a[href='#{new_user_path}']", text: "Create Account"
   end
 end

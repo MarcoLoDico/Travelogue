@@ -1,128 +1,125 @@
 require "test_helper"
 
 class UsersControllerTest < ActionDispatch::IntegrationTest
-  def setup
-    clear_emails
-    # Ensure we're in test mode for mailer
-    ActionMailer::Base.delivery_method = :test
-  end
-
   test "should get new" do
     get new_user_path
     assert_response :success
-    assert_select "h1", "Sign In"
+    assert_select "h1", "Create Account"
     assert_select "input[name='user[email_address]']"
+    assert_select "input[name='user[password]']"
+    assert_select "input[name='user[password_confirmation]']"
   end
 
-  test "should create new user and send code" do
+  test "should create new user with valid attributes" do
     assert_difference "User.count", 1 do
       post users_path, params: {
-        user: { email_address: "newuser@example.com" }
+        user: {
+          email_address: "newuser@example.com",
+          password: "securepassword123",
+          password_confirmation: "securepassword123"
+        }
       }
     end
 
-    assert_response :redirect
-    assert_match %r{/one_time_codes/new}, response.redirect_url
+    assert_redirected_to root_path
     follow_redirect!
-
     assert_response :success
-    assert_select "h1", "Enter Login Code"
+    assert_select "h1", "My Travels"
 
-    # Process enqueued emails
-    perform_enqueued_jobs
-
-    # Should have sent email
-    email = last_email
-    assert_not_nil email, "Expected an email to be sent, but found: #{ActionMailer::Base.deliveries.inspect}"
-    assert_equal "newuser@example.com", email.to.first
-    assert_equal "Your Travelogue login code", email.subject
-
-    # Should have created one-time code
     user = User.find_by(email_address: "newuser@example.com")
     assert_not_nil user
-    # Check that one_time_codes exist
-    assert user.one_time_codes.any?, "Expected user to have one_time_codes, but found: #{user.one_time_codes.inspect}"
-  end
-
-  test "should send code to existing user" do
-    user = users(:alice)
-
-    assert_no_difference "User.count" do
-      post users_path, params: {
-        user: { email_address: user.email_address }
-      }
-    end
-
-    assert_response :redirect
-    assert_match %r{/one_time_codes/new}, response.redirect_url
-    follow_redirect!
-
-    assert_response :success
-    assert_select "h1", "Enter Login Code"
-
-    # Process enqueued emails
-    perform_enqueued_jobs
-
-    # Should have sent email
-    email = last_email
-    assert_not_nil email
-    assert_equal user.email_address, email.to.first
-
-    # Should have created one-time code
-    user.reload
-    assert user.one_time_codes.any?
+    assert user.authenticate("securepassword123")
   end
 
   test "should not create user with invalid email" do
-    # With email format validation, invalid emails should fail validation
-    post users_path, params: {
-      user: { email_address: "invalid-email" }
-    }
+    assert_no_difference "User.count" do
+      post users_path, params: {
+        user: {
+          email_address: "invalid-email",
+          password: "securepassword123",
+          password_confirmation: "securepassword123"
+        }
+      }
+    end
 
-    # Should render form with errors
     assert_response :unprocessable_entity
-    assert_select ".bg-red-100" # Error message box
+    assert_select ".bg-red-100"
   end
 
   test "should not create user with blank email" do
     assert_no_difference "User.count" do
       post users_path, params: {
-        user: { email_address: "" }
+        user: {
+          email_address: "",
+          password: "securepassword123",
+          password_confirmation: "securepassword123"
+        }
       }
     end
 
     assert_response :unprocessable_entity
-    assert_select ".bg-red-100" # Error message box
+    assert_select ".bg-red-100"
+  end
+
+  test "should not create user with short password" do
+    assert_no_difference "User.count" do
+      post users_path, params: {
+        user: {
+          email_address: "newuser@example.com",
+          password: "short",
+          password_confirmation: "short"
+        }
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_select ".bg-red-100"
+  end
+
+  test "should not create user with mismatched password confirmation" do
+    assert_no_difference "User.count" do
+      post users_path, params: {
+        user: {
+          email_address: "newuser@example.com",
+          password: "securepassword123",
+          password_confirmation: "differentpassword"
+        }
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_select ".bg-red-100"
   end
 
   test "should normalize email address" do
     post users_path, params: {
-      user: { email_address: "  TEST@EXAMPLE.COM  " }
+      user: {
+        email_address: "  TEST@EXAMPLE.COM  ",
+        password: "securepassword123",
+        password_confirmation: "securepassword123"
+      }
     }
 
-    assert_response :redirect
-    assert_match %r{/one_time_codes/new}, response.redirect_url
+    assert_redirected_to root_path
 
     user = User.find_by(email_address: "test@example.com")
     assert_not_nil user
   end
 
-  test "should handle duplicate email gracefully" do
-    user = users(:alice)
+  test "should not create user with duplicate email" do
+    existing_user = users(:alice)
 
-    # Try to create user with existing email
     assert_no_difference "User.count" do
       post users_path, params: {
-        user: { email_address: user.email_address }
+        user: {
+          email_address: existing_user.email_address,
+          password: "securepassword123",
+          password_confirmation: "securepassword123"
+        }
       }
     end
 
-    # Should redirect to code entry (not error)
-    assert_response :redirect
-    assert_match %r{/one_time_codes/new}, response.redirect_url
-    follow_redirect!
-
-    assert_response :success
-    assert_select "h1", "Enter Login Code"
+    assert_response :unprocessable_entity
+    assert_select ".bg-red-100"
   end
 end

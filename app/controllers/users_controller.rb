@@ -1,40 +1,24 @@
 class UsersController < ApplicationController
-  allow_unauthenticated_access
+  allow_unauthenticated_access only: %i[new create]
 
   def new
-    @email = params[:email]
+    @user = User.new
   end
 
   def create
-    @email = params[:user].present? ? params[:user][:email_address] : params[:email_address]
-    @email = @email.strip.downcase if @email.present?
+    @user = User.new(user_params)
 
-    unless @email.present? && @email.match?(URI::MailTo::EMAIL_REGEXP)
-      flash.now[:alert] = "Invalid email address."
+    if @user.save
+      start_new_session_for(@user)
+      redirect_to root_path, notice: "Welcome to Travelogue! Your account has been created."
+    else
       render :new, status: :unprocessable_entity
-      return
     end
+  end
 
-    # Find or create user
-    user = User.find_or_initialize_by(email_address: @email)
+  private
 
-    unless user.persisted?
-      begin
-        user.save!
-      rescue ActiveRecord::RecordInvalid => e
-        flash.now[:alert] = "Error: #{e.message}"
-        render :new, status: :unprocessable_entity
-        return
-      end
-    end
-
-    # Generate one-time code
-    one_time_code = OneTimeCode.generate_for(user)
-
-    # Send code via email
-    OneTimeCodeMailer.send_code(user, one_time_code.code).deliver_later
-
-    # Redirect to code entry with code in development/test
-    redirect_to new_one_time_code_path(email: @email, code: (Rails.env.development? || Rails.env.test?) ? one_time_code.code : nil)
+  def user_params
+    params.require(:user).permit(:email_address, :password, :password_confirmation)
   end
 end
