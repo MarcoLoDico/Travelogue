@@ -18,6 +18,7 @@ bob:
 
 charlie:
   email_address: charlie@example.com
+  username: charlie_explorer
   password_digest: <%= BCrypt::Password.create("password123", cost: BCrypt::Engine::MIN_COST) %>
   created_at: <%= 1.day.ago %>
   updated_at: <%= 1.day.ago %>

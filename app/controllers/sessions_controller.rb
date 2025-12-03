@@ -10,7 +10,7 @@ class SessionsController < ApplicationController
 
     if user&.authenticate(params[:password])
       start_new_session_for(user)
-      redirect_to after_authentication_url, notice: "Welcome back!"
+      redirect_to after_authentication_url
     else
       flash.now[:alert] = "Invalid email or password."
       render :new, status: :unprocessable_entity

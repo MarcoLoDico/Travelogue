@@ -3,8 +3,7 @@ Rails.application.routes.draw do
   resource :session, only: %i[new create destroy]
   resources :users, only: %i[new create]
 
-  # Profile / Username
-  resource :username, only: %i[show create update]
+  # Username route removed - usernames are set at signup and cannot be changed
 
   # Visits API for map
   resources :visits, only: %i[index create destroy update] do

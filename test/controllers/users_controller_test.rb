@@ -5,6 +5,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     get new_user_path
     assert_response :success
     assert_select "h1", "Create Account"
+    assert_select "input[name='user[username]']"
     assert_select "input[name='user[email_address]']"
     assert_select "input[name='user[password]']"
     assert_select "input[name='user[password_confirmation]']"
@@ -14,6 +15,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_difference "User.count", 1 do
       post users_path, params: {
         user: {
+          username: "newuser123",
           email_address: "newuser@example.com",
           password: "securepassword123",
           password_confirmation: "securepassword123"
@@ -94,6 +96,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
   test "should normalize email address" do
     post users_path, params: {
       user: {
+        username: "normalize_test",
         email_address: "  TEST@EXAMPLE.COM  ",
         password: "securepassword123",
         password_confirmation: "securepassword123"
@@ -112,6 +115,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference "User.count" do
       post users_path, params: {
         user: {
+          username: "unique_username",
           email_address: existing_user.email_address,
           password: "securepassword123",
           password_confirmation: "securepassword123"
