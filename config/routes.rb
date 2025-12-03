@@ -5,6 +5,9 @@ Rails.application.routes.draw do
 
   # Username route removed - usernames are set at signup and cannot be changed
 
+  # User search
+  get "search", to: "search#index", as: :search
+
   # Public user profiles
   get "user/:username", to: "profiles#show", as: :profile
   get "user/:username/visits", to: "profiles#visits", as: :profile_visits
