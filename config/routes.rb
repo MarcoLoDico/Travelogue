@@ -6,6 +6,10 @@ Rails.application.routes.draw do
   # Profile / Username
   resource :username, only: %i[show create update]
 
+  # Public user profiles
+  get "user/:username", to: "profiles#show", as: :profile
+  get "user/:username/visits", to: "profiles#visits", as: :profile_visits
+
   # Visits API for map
   resources :visits, only: %i[index create destroy update] do
     collection do

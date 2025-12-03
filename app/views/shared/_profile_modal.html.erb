@@ -44,6 +44,23 @@
                            class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 cursor-pointer" %>
           <% end %>
           
+          <!-- Public Profile Link -->
+          <% if Current.user.username.present? %>
+            <div class="pt-2">
+              <%= link_to profile_path(username: Current.user.username), class: "flex items-center justify-center gap-2 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200" do %>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                </svg>
+                View Public Profile
+              <% end %>
+              <p class="text-xs text-gray-500 text-center mt-2">Share your travel page: <%= profile_url(username: Current.user.username) %></p>
+            </div>
+          <% else %>
+            <div class="pt-2">
+              <p class="text-xs text-amber-600 text-center bg-amber-50 rounded-lg p-3 border border-amber-200">Set a username above to enable your public travel profile that you can share with others.</p>
+            </div>
+          <% end %>
+
           <!-- Sign Out Section -->
           <div class="pt-2 space-y-3">
             <p class="text-xs text-gray-500 text-center">Other users can view your display name and basic stats. Your email is private.</p>

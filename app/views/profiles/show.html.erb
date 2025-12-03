@@ -1,0 +1,95 @@
+<% content_for :title, "#{@user.display_name}'s Travels - Travelogue" %>
+
+<div class="container mx-auto px-4 py-4 sm:py-8">
+  <div class="max-w-6xl mx-auto">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 space-y-4 sm:space-y-0">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900"><%= @user.display_name %>'s Travels</h1>
+        <p class="text-gray-600 mt-2">
+          <%= pluralize(@visits.count, 'place') %> visited
+        </p>
+      </div>
+      <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+        <% if @is_own_profile %>
+          <%= link_to "My Dashboard", root_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-center" %>
+        <% elsif authenticated? %>
+          <%= link_to "My Travels", root_path, class: "bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-center" %>
+        <% else %>
+          <%= link_to "Sign In", new_session_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-center" %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Read-only Map -->
+    <div class="py-4">
+      <div id="profile-map"
+           data-controller="profile-map"
+           data-profile-map-visits-url-value="<%= profile_visits_path(username: @user.username) %>"
+           style="height: 480px;"
+           class="rounded overflow-hidden border"></div>
+    </div>
+
+    <% if @visits.any? %>
+      <!-- Desktop Table View -->
+      <div class="hidden sm:block bg-white shadow rounded-lg overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Place</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Visited</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @visits.each do |visit| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900"><%= visit.place.name %></div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-500"><%= visit.place.country_code %></div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-500">
+                    <%= visit.visited_on&.strftime("%B %d, %Y") || visit.created_at.strftime("%B %d, %Y") %>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="text-sm text-gray-500">
+                    <%= visit.notes.present? ? truncate(visit.notes, length: 100) : "—" %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Card View -->
+      <div class="sm:hidden space-y-4">
+        <% @visits.each do |visit| %>
+          <div class="bg-white shadow rounded-lg p-4">
+            <div class="flex justify-between items-start mb-2">
+              <h3 class="text-lg font-medium text-gray-900"><%= visit.place.name %></h3>
+              <span class="text-xs text-gray-500"><%= visit.place.country_code %></span>
+            </div>
+            <p class="text-sm text-gray-600 mb-2">
+              <%= visit.visited_on&.strftime("%B %d, %Y") || visit.created_at.strftime("%B %d, %Y") %>
+            </p>
+            <% if visit.notes.present? %>
+              <p class="text-sm text-gray-500">
+                <%= truncate(visit.notes, length: 120) %>
+              </p>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="bg-white shadow rounded-lg p-8 text-center">
+        <p class="text-gray-500"><%= @user.display_name %> hasn't added any places yet.</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
