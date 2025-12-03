@@ -12,9 +12,23 @@ export default class extends Controller {
     this.#ensureLeafletCss()
     this.icon = this.#markerIcon()
 
-    this.map = L.map(this.element, { scrollWheelZoom: true }).setView([20, 0], 2)
+    // Define world bounds to prevent infinite horizontal scrolling
+    const worldBounds = L.latLngBounds(
+      L.latLng(-85, -180), // Southwest corner
+      L.latLng(85, 180)    // Northeast corner
+    )
+
+    this.map = L.map(this.element, {
+      scrollWheelZoom: true,
+      maxBounds: worldBounds,
+      maxBoundsViscosity: 1.0,
+      minZoom: 2
+    }).setView([20, 0], 2)
+
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "&copy; OpenStreetMap contributors"
+      attribution: "&copy; OpenStreetMap contributors",
+      noWrap: true,
+      bounds: worldBounds
     }).addTo(this.map)
 
     this.#loadExistingVisits()
