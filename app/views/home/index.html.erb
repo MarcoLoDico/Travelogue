@@ -11,6 +11,12 @@
         </div>
         <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
           <%= link_to "Add Place", "#user-map", data: { turbo: false }, class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-center" %>
+          <%= link_to search_path, class: "bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded text-center flex items-center justify-center gap-1" do %>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            Find Travelers
+          <% end %>
           <button type="button" data-action="click->profile-modal#open" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-center">Profile</button>
           <div class="flex space-x-2">
             <%= link_to "CSV", export_visits_path(format: :csv), class: "bg-white border text-gray-700 hover:bg-gray-50 px-3 py-2 rounded" %>
@@ -100,6 +106,12 @@
         <div class="space-y-4">
           <%= link_to "Sign In", new_session_path, class: "block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-4 px-6 rounded-lg text-center" %>
           <%= link_to "Create Account", new_user_path, class: "block w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-4 px-6 rounded-lg text-center" %>
+          <%= link_to search_path, class: "block w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-4 px-6 rounded-lg text-center flex items-center justify-center gap-2" do %>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            Find Travelers
+          <% end %>
         </div>
       </div>
 

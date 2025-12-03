@@ -1,0 +1,92 @@
+<% content_for :title, "Find Travelers - Travelogue" %>
+
+<div class="container mx-auto px-4 py-4 sm:py-8">
+  <div class="max-w-3xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Find Travelers</h1>
+      <p class="text-gray-600">Discover where others have been</p>
+    </div>
+
+    <!-- Search Form -->
+    <div class="mb-8">
+      <%= form_with url: search_path, method: :get, local: true, class: "flex gap-2" do |f| %>
+        <div class="flex-1 relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+          <%= f.text_field :q,
+                           value: @query,
+                           placeholder: "Search by username...",
+                           autofocus: @query.blank?,
+                           class: "w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+        </div>
+        <%= f.submit "Search", class: "bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg transition-colors duration-200 cursor-pointer" %>
+      <% end %>
+    </div>
+
+    <!-- Results -->
+    <div class="space-y-3">
+      <% if @query.present? %>
+        <p class="text-sm text-gray-500 mb-4">
+          <%= pluralize(@users.count, 'traveler') %> found for "<%= @query %>"
+        </p>
+      <% else %>
+        <p class="text-sm text-gray-500 mb-4">Recent travelers</p>
+      <% end %>
+
+      <% if @users.any? %>
+        <div class="bg-white shadow rounded-lg divide-y divide-gray-200 overflow-hidden">
+          <% @users.each do |user| %>
+            <%= link_to profile_path(username: user.username), class: "block hover:bg-gray-50 transition-colors duration-150" do %>
+              <div class="p-4 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                  <!-- Avatar placeholder -->
+                  <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg">
+                    <%= user.display_name.first.upcase %>
+                  </div>
+                  <div>
+                    <p class="font-medium text-gray-900"><%= user.display_name %></p>
+                    <p class="text-sm text-gray-500">@<%= user.username %></p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                  <div class="text-right hidden sm:block">
+                    <p class="text-sm font-medium text-gray-900"><%= user.visits.count %></p>
+                    <p class="text-xs text-gray-500">places</p>
+                  </div>
+                  <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="bg-white shadow rounded-lg p-8 text-center">
+          <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+          <p class="text-gray-500">
+            <% if @query.present? %>
+              No travelers found matching "<%= @query %>"
+            <% else %>
+              No travelers with public profiles yet
+            <% end %>
+          </p>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Back link -->
+    <div class="mt-8 text-center">
+      <%= link_to root_path, class: "text-blue-600 hover:text-blue-800 font-medium" do %>
+        &larr; Back to Home
+      <% end %>
+    </div>
+  </div>
+</div>
+
