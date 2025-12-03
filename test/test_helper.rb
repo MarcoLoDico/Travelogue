@@ -1,6 +1,10 @@
 ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
+require "webmock/minitest"
+
+# Allow real connections in tests by default; stub specific requests as needed
+WebMock.allow_net_connect!
 
 module ActiveSupport
   class TestCase

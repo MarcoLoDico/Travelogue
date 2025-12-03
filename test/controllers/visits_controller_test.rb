@@ -29,6 +29,35 @@ class VisitsControllerTest < ActionDispatch::IntegrationTest
     assert_in_delta -79.4, data["lon"].to_f, 0.0001
   end
 
+  test "create with custom name still determines country_code automatically via geocoding" do
+    user = users(:alice)
+    sign_in_user(user)
+
+    # Stub Nominatim reverse geocoding API to return a known country code
+    stub_request(:get, %r{nominatim\.openstreetmap\.org/reverse})
+      .to_return(
+        status: 200,
+        body: {
+          "address" => { "city" => "Berlin", "country_code" => "de" },
+          "display_name" => "Berlin, Germany"
+        }.to_json,
+        headers: { "Content-Type" => "application/json" }
+      )
+
+    assert_difference -> { user.visits.count }, +1 do
+      post visits_path,
+           params: { lat: 52.52, lon: 13.405, name: "My Custom Place Name" },
+           headers: { "Accept" => "application/json" }
+      assert_response :success
+    end
+
+    data = JSON.parse(response.body)
+    # Name should be the user-provided custom name
+    assert_equal "My Custom Place Name", data["place_name"]
+    # Country code should come from the geocoder (uppercased), NOT from user input
+    assert_equal "DE", data["country_code"]
+  end
+
   test "update changes notes and visited_on" do
     user = users(:alice)
     sign_in_user(user)

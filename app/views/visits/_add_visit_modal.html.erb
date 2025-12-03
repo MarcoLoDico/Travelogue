@@ -1,0 +1,62 @@
+<%# 
+  Modal for adding a new visit - uses HTML <dialog> element (minimal JS).
+  Opened by map controller calling dialog.showModal().
+  Form submits via fetch to avoid page reload.
+%>
+<style>
+  #add-visit-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+  }
+  #add-visit-modal::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+  }
+</style>
+
+<dialog id="add-visit-modal" class="rounded-lg shadow-xl w-[min(90vw,420px)] p-6">
+  <h3 class="text-lg font-semibold text-gray-900 mb-4">Add Visit</h3>
+  
+  <form id="add-visit-form" method="dialog" class="space-y-4">
+    <%# Hidden fields for lat/lon - populated by map JS when clicked %>
+    <%= hidden_field_tag :lat, nil, id: "add-visit-lat" %>
+    <%= hidden_field_tag :lon, nil, id: "add-visit-lon" %>
+    
+    <div>
+      <%= label_tag :name, "Name (optional)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= text_field_tag :name, nil, 
+          id: "add-visit-name",
+          class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500",
+          placeholder: "Leave blank for automatic place name" %>
+    </div>
+    
+    <div>
+      <%= label_tag :visited_on, "Visited on (optional)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= date_field_tag :visited_on, nil,
+          id: "add-visit-date", 
+          class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" %>
+    </div>
+    
+    <div>
+      <%= label_tag :notes, "Notes (optional)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= text_area_tag :notes, nil,
+          id: "add-visit-notes",
+          rows: 3,
+          class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500",
+          placeholder: "Add any notes about your visit..." %>
+    </div>
+    
+    <div class="flex justify-end gap-3 pt-2">
+      <button type="button" onclick="this.closest('dialog').close()"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md border border-gray-300">
+        Cancel
+      </button>
+      <button type="submit"
+              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md cursor-pointer">
+        Save
+      </button>
+    </div>
+  </form>
+</dialog>
