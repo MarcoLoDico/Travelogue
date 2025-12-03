@@ -16,11 +16,13 @@ class AuthenticationSystemTest < ApplicationSystemTestCase
 
     # Should see registration form
     assert_text "Create Account"
+    assert_field "Username"
     assert_field "Email address"
     assert_field "Password"
     assert_field "Confirm password"
 
     # Step 3: Fill in registration form
+    fill_in "Username", with: "newuser123"
     fill_in "Email address", with: "newuser@example.com"
     fill_in "Password", with: "securepassword123"
     fill_in "Confirm password", with: "securepassword123"
@@ -62,6 +64,7 @@ class AuthenticationSystemTest < ApplicationSystemTestCase
   test "invalid email address on registration" do
     visit new_user_path
 
+    fill_in "Username", with: "testuser123"
     fill_in "Email address", with: "invalid-email"
     fill_in "Password", with: "securepassword123"
     fill_in "Confirm password", with: "securepassword123"
@@ -74,6 +77,7 @@ class AuthenticationSystemTest < ApplicationSystemTestCase
   test "short password on registration" do
     visit new_user_path
 
+    fill_in "Username", with: "testuser123"
     fill_in "Email address", with: "newuser@example.com"
     fill_in "Password", with: "short"
     fill_in "Confirm password", with: "short"
@@ -86,6 +90,7 @@ class AuthenticationSystemTest < ApplicationSystemTestCase
   test "password mismatch on registration" do
     visit new_user_path
 
+    fill_in "Username", with: "testuser123"
     fill_in "Email address", with: "newuser@example.com"
     fill_in "Password", with: "securepassword123"
     fill_in "Confirm password", with: "differentpassword"
