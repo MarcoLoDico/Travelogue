@@ -122,3 +122,8 @@
     </div>
   <% end %>
 </div>
+
+<% if authenticated? %>
+  <%# Add Visit Modal - rendered outside container to avoid stacking context issues %>
+  <%= render "visits/add_visit_modal" %>
+<% end %>

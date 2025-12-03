@@ -25,13 +25,15 @@ class VisitsController < ApplicationController
     lat = visit_params[:lat].to_f
     lon = visit_params[:lon].to_f
 
-    # Optional reverse geocoding via Nominatim (OSM) when name not provided
     place_name = visit_params[:name].presence
     country_code = nil
 
     if place_name.blank?
       geocoded = reverse_geocode(lat, lon)
       place_name = geocoded[:name]
+      country_code = geocoded[:country_code]
+    else
+      geocoded = reverse_geocode(lat, lon)
       country_code = geocoded[:country_code]
     end
 
@@ -52,15 +54,20 @@ class VisitsController < ApplicationController
       notes: visit_params[:notes]
     )
 
-    render json: {
-      id: visit.id,
-      lat: visit.lat,
-      lon: visit.lon,
-      place_name: place.name,
-      country_code: place.country_code,
-      notes: visit.notes,
-      visited_on: visit.visited_on
-    }
+    respond_to do |format|
+      format.html { redirect_to root_path, notice: "Visit added!" }
+      format.json do
+        render json: {
+          id: visit.id,
+          lat: visit.lat,
+          lon: visit.lon,
+          place_name: place.name,
+          country_code: place.country_code,
+          notes: visit.notes,
+          visited_on: visit.visited_on
+        }
+      end
+    end
   end
 
   # DELETE /visits/:id
