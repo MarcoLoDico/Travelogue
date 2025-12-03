@@ -5,6 +5,10 @@ Rails.application.routes.draw do
 
   # Username route removed - usernames are set at signup and cannot be changed
 
+  # Public user profiles
+  get "user/:username", to: "profiles#show", as: :profile
+  get "user/:username/visits", to: "profiles#visits", as: :profile_visits
+
   # Visits API for map
   resources :visits, only: %i[index create destroy update] do
     collection do
