@@ -6,6 +6,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     get new_user_path
     assert_response :success
     assert_select "h1", "Create Account"
+    assert_select "input[name='user[username]']"
     assert_select "input[name='user[email_address]']"
     assert_select "input[name='user[password]']"
     assert_select "input[name='user[password_confirmation]']"
@@ -14,6 +15,7 @@ class AuthenticationFlowTest < ActionDispatch::IntegrationTest
     assert_difference "User.count", 1 do
       post users_path, params: {
         user: {
+          username: "newuser123",
           email_address: "newuser@example.com",
           password: "securepassword123",
           password_confirmation: "securepassword123"
