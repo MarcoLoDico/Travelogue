@@ -178,17 +178,3 @@ config/
 | `Place` | Geographic location (city, landmark, etc.) |
 | `Visit` | A user's recorded visit to a place |
 | `Session` | Active user sessions |
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes with clear messages
-4. Push to your branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-Please ensure tests pass and code follows the project's style guidelines before submitting.
-
-## License
-
-This project is private. All rights reserved.
